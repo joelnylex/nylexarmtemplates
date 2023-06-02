@@ -96,7 +96,7 @@
           "[resourceId('Microsoft.DevTestLab/labs', parameters('labName'))]",
           "[resourceId('Microsoft.DevTestLab/labs/virtualnetworks', parameters('labName'), variables('labVirtualNetworkName'))]"
         ]
-      }
+      },
       {
         "type": "Microsoft.DevTestLab/labs/virtualmachines",
         "apiVersion": "2018-09-15",
