@@ -80,6 +80,7 @@
         "labSubnetName": "[variables('labSubnetName')]",
         "size": "[parameters('vmSize')]",
         "allowClaim": false,
+        "priority": "Spot",
         "galleryImageReference": {
           "offer": "WindowsServer",
           "publisher": "MicrosoftWindowsServer",
