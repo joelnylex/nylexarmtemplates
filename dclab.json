@@ -9,6 +9,13 @@
     }
   },
   "parameters": {
+    "resourceGroupName": {
+      "type": "string",
+      "defaultValue": "[concat('dclab-', uniqueString(utcNow()))]",
+      "metadata": {
+        "description": "Name of the resource group to use"
+      }
+    },
     "adminUsername": {
       "type": "string",
       "metadata": {
@@ -92,7 +99,7 @@
     },
     "securityType": {
       "type": "string",
-      "defaultValue": "TrustedLaunch",
+      "defaultValue": "Standard",
       "allowedValues": [
         "Standard",
         "TrustedLaunch"
@@ -103,7 +110,6 @@
     }
   },
   "variables": {
-    "storageAccountName": "[format('bootdiags{0}', uniqueString(resourceGroup().id))]",
     "nicName": "myVMNic",
     "addressPrefix": "10.0.0.0/16",
     "subnetName": "Subnet",
