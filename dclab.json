@@ -11,7 +11,6 @@
   "parameters": {
     "labName": {
       "type": "string",
-      "defaultValue": "[concat('dclab-', uniqueString(utcNow()))]",
       "metadata": {
         "description": "The name of the new lab instance to be created"
       }
@@ -25,14 +24,13 @@
     },
     "vmName": {
       "type": "string",
-      "defaultValue": "[concat('labdc-', uniqueString(utcNow()))]",
       "metadata": {
         "description": "The name of the vm to be created."
       }
     },
     "vmSize": {
       "type": "string",
-      "defaultValue": "Standard_B2s",
+      "defaultValue": "Standard_D4_v3",
       "metadata": {
         "description": "The size of the vm to be created."
       }
