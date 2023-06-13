@@ -16,13 +16,6 @@
         "description": "The name of the new lab instance to be created"
       }
     },
-      "expirationDate": {
-      "type": "string",
-      "defaultValue": "utcNow()",
-      "metadata": {
-        "description": "Expiration Date"
-      }
-    },
     "location": {
       "type": "string",
       "defaultValue": "[resourceGroup().location]",
@@ -83,7 +76,6 @@
       "name": "[format('{0}/{1}', parameters('labName'), parameters('vmName'))]",
       "location": "[parameters('location')]",
       "properties": {
-        "expirationDate": "[parameters('expirationDate')]",
         "userName": "[parameters('userName')]",
         "password": "[parameters('password')]",
         "labVirtualNetworkId": "[variables('labVirtualNetworkId')]",
