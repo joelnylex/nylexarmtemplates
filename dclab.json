@@ -32,7 +32,7 @@
     },
     "vmName": {
       "type": "string",
-
+      "defaultValue": "[concat('labdc-', substring(uniqueString(utcNow()),0,4))]",
       "metadata": {
         "description": "The name of the vm to be created."
       }
@@ -83,7 +83,7 @@
       "name": "[format('{0}/{1}', parameters('labName'), parameters('vmName'))]",
       "location": "[parameters('location')]",
       "properties": {
-        "expirationDate": "[parameters('expirationDate')]"
+        "expirationDate": "[parameters('expirationDate')]",
         "userName": "[parameters('userName')]",
         "password": "[parameters('password')]",
         "labVirtualNetworkId": "[variables('labVirtualNetworkId')]",
