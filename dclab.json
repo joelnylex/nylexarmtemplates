@@ -32,7 +32,7 @@
     },
     "vmName": {
       "type": "string",
-      "defaultValue": "[concat('labdc-', substring(uniqueString(utcNow()),0,4)]",
+      "defaultValue": "[concat('labdc-', substring(uniqueString(utcNow()),0,4))]",
       "metadata": {
         "description": "The name of the vm to be created."
       }
