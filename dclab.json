@@ -39,7 +39,7 @@
     },
     "vmSize": {
       "type": "string",
-      "defaultValue": "Standard_D4_v3",
+      "defaultValue": "Standard_B2s",
       "metadata": {
         "description": "The size of the vm to be created."
       }
