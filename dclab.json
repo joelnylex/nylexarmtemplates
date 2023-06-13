@@ -17,7 +17,7 @@
     },
       "expirationDate": {
       "type": "string",
-      "defaultValue": "[utcnow()]"
+      "defaultValue": "[utcnow()]",
       "metadata": {
         "description": "The name of the new lab instance to be created"
       }
