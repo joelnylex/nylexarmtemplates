@@ -16,6 +16,13 @@
         "description": "The name of the new lab instance to be created"
       }
     },
+      "expirationDate": {
+      "type": "string",
+      "defaultValue": "utcNow()",
+      "metadata": {
+        "description": "Expiration Date"
+      }
+    },
     "location": {
       "type": "string",
       "defaultValue": "[resourceGroup().location]",
@@ -25,7 +32,7 @@
     },
     "vmName": {
       "type": "string",
-      "defaultValue": "[concat('labdc-', substring(uniqueString(utcNow()),0,4))]",
+      "defaultValue": "[concat('labdc-', uniqueString(utcNow()))]",
       "metadata": {
         "description": "The name of the vm to be created."
       }
@@ -76,6 +83,7 @@
       "name": "[format('{0}/{1}', parameters('labName'), parameters('vmName'))]",
       "location": "[parameters('location')]",
       "properties": {
+        "expirationDate": "[parameters('expirationDate')]"
         "userName": "[parameters('userName')]",
         "password": "[parameters('password')]",
         "labVirtualNetworkId": "[variables('labVirtualNetworkId')]",
