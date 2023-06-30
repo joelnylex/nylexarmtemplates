@@ -1,258 +1,586 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "4.0.0.0",
+    "metadata": {
+      "description": "Deploy DCLab",
+      "author": "Yvand"
+    },
     "parameters": {
-        "clusterOS": {
-            "type": "string",
-            "allowedValues": [
-                "Windows",
-                "Linux"
-            ],
-            "defaultValue": "Windows",
-            "metadata": {
-                "description": "Select the cluster OS."
-            }
-        },
-        "adminUsername": {
-            "type": "string",
-            "minLength": 1,
-            "metadata": {
-                "description": "Remote desktop user Id"
-            }
-        },
-        "adminPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Remote desktop user password. Must be a strong password"
-            }
-        },
-        "certificate": {
-            "type": "string",
-            "minLength": 1,
-            "metadata": {
-                "description": "Certificate as Base64 encoded string."
-            }
-        },
-        "certificatePassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Certificate password for installation."
-            }
-        },
-        "certificateThumbprint": {
-            "type": "string",
-            "minLength": 1,
-            "metadata": {
-                "description": "Certificate thumbprint for identification in the local certificate store."
-            }
-        },
-        "appPort1": {
-            "type": "int",
-            "defaultValue": 80,
-            "minValue": 1,
-            "metadata": {
-                "description": "Public accessible application port #1."
-            }
-        },
-        "appPort2": {
-            "type": "int",
-            "defaultValue": 443,
-            "minValue": 1,
-            "metadata": {
-                "description": "Public accessible application port #2."
-            }
-        },
-        "tenantId": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Tenant the cluster- and clientapplication belongs to. Required for Windows clusters."
-            }
-        },
-        "clusterApplication": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Client id of cluster application. Required for Windows clusters."
-            }
-        },
-        "clientApplication": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Client id of client application. Required for Windows clusters."
-            }
+      "location": {
+        "type": "string",
+        "defaultValue": "[resourceGroup().location]",
+        "metadata": {
+          "description": "Location for all resources."
         }
+      },
+      "addPublicIPAddress": {
+        "type": "string",
+        "defaultValue": "SharePointVMsOnly",
+        "allowedValues": [
+          "Yes",
+          "No",
+          "SharePointVMsOnly"
+        ],
+        "metadata": {
+          "description": "Specify if each VM should have a public IP and be reachable from Internet."
+        }
+      },
+      "RDPTrafficAllowed": {
+        "type": "string",
+        "defaultValue": "Yes",
+        "minLength": 1,
+        "metadata": {
+          "description": "Specify if RDP traffic is allowed:<br>- If 'No' (default): Firewall denies all incoming RDP traffic.<br>- If '*' or 'Internet': Firewall accepts all incoming RDP traffic from Internet.<br>- If CIDR notation (e.g. 192.168.99.0/24 or 2001:1234::/64) or IP address (e.g. 192.168.99.0 or 2001:1234::): Firewall accepts incoming RDP traffic from the IP addresses specified."
+        }
+      },
+      "adminUserName": {
+        "type": "string",
+        "minLength": 1,
+        "metadata": {
+          "description": "Name of the AD and SharePoint administrator. 'admin' and 'administrator' are not allowed."
+        }
+      },
+      "adminPassword": {
+        "type": "securestring",
+        "minLength": 8,
+        "metadata": {
+          "description": "Input must meet password complexity requirements as documented in https://learn.microsoft.com/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-"
+        }
+      },
+      "vmsTimeZone": {
+        "type": "string",
+        "defaultValue": "Pacific Standard Time",
+        "allowedValues": [
+          "Pacific Standard Time"
+        ],
+        "minLength": 2,
+        "metadata": {
+          "description": "Time zone of the virtual machines. Type \"[TimeZoneInfo]::GetSystemTimeZones().Id\" in PowerShell to get the list."
+        }
+      },
+      "enableAutomaticUpdates": {
+        "type": "bool",
+        "defaultValue": true,
+        "metadata": {
+          "description": "Enable automatic Windows Updates."
+        }
+      },
+      "enableHybridBenefitServerLicenses": {
+        "type": "bool",
+        "defaultValue": false,
+        "metadata": {
+          "description": "Enable Azure Hybrid Benefit to use your on-premises Windows Server licenses and reduce cost. See https://docs.microsoft.com/en-us/azure/virtual-machines/windows/hybrid-use-benefit-licensing for more information."
+        }
+      },
+      "vmDCSize": {
+        "type": "string",
+        "defaultValue": "Standard_B2s",
+        "metadata": {
+          "description": "Size of the DC VM"
+        }
+      },
+      "vmDCStorageAccountType": {
+        "type": "string",
+        "defaultValue": "StandardSSD_LRS",
+        "allowedValues": [
+          "Standard_LRS",
+          "StandardSSD_LRS",
+          "Premium_LRS",
+          "Premium_ZRS",
+          "StandardSSD_ZRS",
+          "UltraSSD_LRS"
+        ],
+        "metadata": {
+          "description": "Type of storage for the managed disks. Visit 'https://docs.microsoft.com/en-us/rest/api/compute/disks/list#diskstorageaccounttypes' for more information"
+        }
+      },
+      "vmSQLSize": {
+        "type": "string",
+        "defaultValue": "Standard_B2ms",
+        "metadata": {
+          "description": "Size of the SQL VM"
+        }
+      },
+      "vmSQLStorageAccountType": {
+        "type": "string",
+        "defaultValue": "StandardSSD_LRS",
+        "allowedValues": [
+          "Standard_LRS",
+          "StandardSSD_LRS",
+          "Premium_LRS",
+          "Premium_ZRS",
+          "StandardSSD_ZRS",
+          "UltraSSD_LRS"
+        ],
+        "metadata": {
+          "description": "Type of storage for the managed disks. Visit 'https://docs.microsoft.com/en-us/rest/api/compute/disks/list#diskstorageaccounttypes' for more information"
+        }
+      },
+      "_artifactsLocation": {
+        "type": "string",
+        "defaultValue": "https://github.com/Azure/azure-devtestlab/raw/master/Environments/SharePoint-AllVersions",
+        "metadata": {
+          "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+        }
+      },
+      "_artifactsLocationSasToken": {
+        "type": "securestring",
+        "defaultValue": "",
+        "metadata": {
+          "description": "The sasToken required to access _artifactsLocation. When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+        }
+      }
     },
     "variables": {
-        "quickstartRepoRoot": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.servicefabric/",
-        "clusterName": "[concat('sf-', toLower(uniqueString(resourceGroup().name)))]",
-        "vaultName": "[concat('kv-', toLower(uniqueString(resourceGroup().name)))]",
-        "vaultSecret": "ClusterCertificate",
-        "loadBalancedAppPort1": "[parameters('appPort1')]",
-        "loadBalancedAppPort2": "[parameters('appPort2')]",
-        "nt0InstanceCount": 5
+      "resourceGroupNameFormatted": "[replace(replace(replace(replace(resourceGroup().name, '.', '-'), '(', '-'), ')', '-'), '_', '-')]",
+      "_artifactsLocationWithTrailingSlash": "[concat(parameters('_artifactsLocation'), '/')]",
+      "networkSettings": {
+        "vNetPrivatePrefix": "10.1.0.0/16",
+        "subnetDCPrefix": "10.1.1.0/24",
+        "dcPrivateIPAddress": "10.1.1.4",
+        "subnetSQLPrefix": "10.1.2.0/24",
+        "vNetPrivateName": "[concat(variables('resourceGroupNameFormatted'), '-vnet')]",
+        "subnetDCName": "Subnet-DC",
+        "subnetSQLName": "Subnet-SQL",
+        "nsgSubnetDCName": "NSG-Subnet-DC",
+        "nsgSubnetSQLName": "NSG-Subnet-SQL",
+        "vmDCPublicIPNicAssociation": {
+          "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmDCPublicIPName)]"
+        },
+        "vmSQLPublicIPNicAssociation": {
+          "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmSQLPublicIPName)]"
+        },
+        "nsgRuleAllowIncomingRdp": [
+          {
+            "name": "allow-rdp-rule",
+            "properties": {
+              "description": "Allow RDP",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "[parameters('RDPTrafficAllowed')]",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      },
+      "vmsSettings": {
+        "vmDCName": "DC",
+        "vmSQLName": "SQL",
+        "vmDCImage": "MicrosoftWindowsServer:WindowsServer:2022-datacenter-azure-edition-smalldisk:latest",
+        "vmSQLImage": "MicrosoftWindowsServer:WindowsServer:2022-datacenter-azure-edition-smalldisk:latest"
+      },
+      "vmsResourcesNames": {
+        "vmDCNicName": "[concat('NIC-', variables('vmsSettings').vmDCName, '-0')]",
+        "vmDCPublicIPName": "[concat('PublicIP-', variables('vmsSettings').vmDCName)]",
+        "vmSQLNicName": "[concat('NIC-', variables('vmsSettings').vmSQLName, '-0')]",
+        "vmSQLPublicIPName": "[concat('PublicIP-', variables('vmsSettings').vmSQLName)]"
+      },
+      "deploymentSettings": {
+        "localAdminUserName": "[concat('local-', uniqueString(subscription().subscriptionId))]",
+        "enableAnalysis": false,
+        "applyBrowserPolicies": true
+      }
     },
     "resources": [
-        {
-            "name": "[variables('vaultName')]",
-            "type": "Microsoft.KeyVault/vaults",
-            "apiVersion": "2015-06-01",
-            "location": "[resourceGroup().location]",
-            "tags": {},
-            "properties": {
-                "enabledForDeployment": true,
-                "enabledForTemplateDeployment": false,
-                "enabledForVolumeEncryption": false,
-                "tenantId": "[subscription().tenantId]",
-                "sku": {
-                    "name": "standard",
-                    "family": "A"
-                },
-                "accessPolicies": []
-            }
-        },
-        {
-            "name": "[concat(variables('vaultName'), '/', variables('vaultSecret'))]",
-            "type": "Microsoft.KeyVault/vaults/secrets",
-            "apiVersion": "2015-06-01",
-            "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', variables('vaultName'))]"
-            ],
-            "properties": {
-                "value": "[base64(concat('{ \"data\":\"', parameters('certificate'), '\", \"dataType\":\"pfx\", \"password\":\"', parameters('certificatePassword'), '\" }'))]"
-            }
-        },
-        {
-            "condition": "[equals(parameters('clusterOS'), 'Windows')]",
-            "name": "[concat(deployment().name, '-QuickstartTemplate-Windows')]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2015-01-01",
-            "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('vaultName'), variables('vaultSecret'))]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('quickstartRepoRoot'), 'service-fabric-secure-cluster-5-node-1-nodetype/azuredeploy.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "clusterName": {
-                        "value": "[variables('clusterName')]"
-                    },
-                    "adminUsername": {
-                        "value": "[parameters('adminUsername')]"
-                    },
-                    "adminPassword": {
-                        "value": "[parameters('adminPassword')]"
-                    },
-                    "vmImagePublisher": {
-                        "value": "MicrosoftWindowsServer"
-                    },
-                    "vmImageOffer": {
-                        "value": "WindowsServer"
-                    },
-                    "vmImageSku": {
-                        "value": "2022-datacenter"
-                    },
-                    "vmImageVersion": {
-                        "value": "latest"
-                    },
-                    "loadBalancedAppPort1": {
-                        "value": "[variables('loadBalancedAppPort1')]"
-                    },
-                    "loadBalancedAppPort2": {
-                        "value": "[variables('loadBalancedAppPort2')]"
-                    },
-                    "certificateThumbprint": {
-                        "value": "[parameters('certificateThumbprint')]"
-                    },
-                    "sourceVaultResourceId": {
-                        "value": "[resourceId('Microsoft.KeyVault/vaults', variables('vaultName'))]"
-                    },
-                    "certificateUrlValue": {
-                        "value": "[reference(resourceId('Microsoft.KeyVault/vaults/secrets', variables('vaultName'), variables('vaultSecret'))).secretUriWithVersion]"
-                    },
-                    "nt0InstanceCount": {
-                        "value": "[variables('nt0InstanceCount')]"
-                    },
-                    "nodeDataDrive": {
-                        "value": "OS"
-                    },
-                    "tenantId": {
-                        "value": "[parameters('tenantId')]"
-                    },
-                    "clusterApplication": {
-                        "value": "[parameters('clusterApplication')]"
-                    },
-                    "clientapplication": {
-                        "value": "[parameters('clientApplication')]"
-                    }
-                }
-            }
-        },
-        {
-            "condition": "[equals(parameters('clusterOS'), 'Linux')]",
-            "name": "[concat(deployment().name, '-QuickstartTemplate-Linux')]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2015-01-01",
-            "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('vaultName'), variables('vaultSecret'))]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('quickstartRepoRoot'), '5-vm-ubuntu-1-nodetypes-secure/azuredeploy.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "clusterName": {
-                        "value": "[variables('clusterName')]"
-                    },
-                    "adminUsername": {
-                        "value": "[parameters('adminUsername')]"
-                    },
-                    "adminPassword": {
-                        "value": "[parameters('adminPassword')]"
-                    },
-                    "vmImagePublisher": {
-                        "value": "Canonical"
-                    },
-                    "vmImageOffer": {
-                        "value": "UbuntuServer"
-                    },
-                    "vmImageSku": {
-                        "value": "16.04-LTS"
-                    },
-                    "vmImageVersion": {
-                        "value": "latest"
-                    },
-                    "loadBalancedAppPort1": {
-                        "value": "[variables('loadBalancedAppPort1')]"
-                    },
-                    "loadBalancedAppPort2": {
-                        "value": "[variables('loadBalancedAppPort2')]"
-                    },
-                    "certificateThumbprint": {
-                        "value": "[parameters('certificateThumbprint')]"
-                    },
-                    "sourceVaultValue": {
-                        "value": "[resourceId('Microsoft.KeyVault/vaults', variables('vaultName'))]"
-                    },
-                    "certificateUrlValue": {
-                        "value": "[reference(resourceId('Microsoft.KeyVault/vaults/secrets', variables('vaultName'), variables('vaultSecret'))).secretUriWithVersion]"
-                    },
-                    "nt0InstanceCount": {
-                        "value": "[variables('nt0InstanceCount')]"
-                    },
-                    "storageAccountEndPoint": {
-                        "value": "[resourceGroup().location]"
-                    }
-                }
-            }
+      {
+        "name": "[variables('networkSettings').nsgSubnetDCName]",
+        "type": "Microsoft.Network/networkSecurityGroups",
+        "apiVersion": "2022-07-01",
+        "location": "[parameters('location')]",
+        "properties": {
+          "securityRules": "[if(equals(toLower(parameters('RDPTrafficAllowed')), 'no'), json('null'), variables('networkSettings').nsgRuleAllowIncomingRdp)]"
         }
+      },
+      {
+        "name": "[variables('networkSettings').nsgSubnetSQLName]",
+        "type": "Microsoft.Network/networkSecurityGroups",
+        "apiVersion": "2022-07-01",
+        "location": "[parameters('location')]",
+        "properties": {
+          "securityRules": "[if(equals(toLower(parameters('RDPTrafficAllowed')), 'no'), json('null'), variables('networkSettings').nsgRuleAllowIncomingRdp)]"
+        }
+      },
+      {
+        "name": "[variables('networkSettings').vNetPrivateName]",
+        "type": "Microsoft.Network/virtualNetworks",
+        "apiVersion": "2022-07-01",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSettings').nsgSubnetDCName)]",
+          "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSettings').nsgSubnetSQLName)]"
+        ],
+        "properties": {
+          "addressSpace": {
+            "addressPrefixes": [
+              "[variables('networkSettings').vNetPrivatePrefix]"
+            ]
+          },
+          "subnets": [
+            {
+              "name": "[variables('networkSettings').subnetDCName]",
+              "properties": {
+                "addressPrefix": "[variables('networkSettings').subnetDCPrefix]",
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSettings').nsgSubnetDCName)]"
+                }
+              }
+            },
+            {
+              "name": "[variables('networkSettings').subnetSQLName]",
+              "properties": {
+                "addressPrefix": "[variables('networkSettings').subnetSQLPrefix]",
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSettings').nsgSubnetSQLName)]"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "condition": "[equals(parameters('addPublicIPAddress'), 'Yes')]",
+        "name": "[variables('vmsResourcesNames').vmDCPublicIPName]",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "apiVersion": "2022-07-01",
+        "location": "[parameters('location')]",
+        "sku": {
+          "name": "Basic",
+          "tier": "Regional"
+        },
+        "properties": {
+          "publicIPAllocationMethod": "Dynamic",
+          "dnsSettings": {
+            "domainNameLabel": "[toLower(concat(variables('resourceGroupNameFormatted'), '-', variables('vmsSettings').vmDCName))]"
+          }
+        }
+      },
+      {
+        "name": "[variables('vmsResourcesNames').vmDCNicName]",
+        "type": "Microsoft.Network/networkInterfaces",
+        "apiVersion": "2022-07-01",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/virtualNetworks', variables('networkSettings').vNetPrivateName)]",
+          "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmDCPublicIPName)]"
+        ],
+        "properties": {
+          "ipConfigurations": [
+            {
+              "name": "ipconfig1",
+              "properties": {
+                "privateIPAllocationMethod": "Static",
+                "privateIPAddress": "[variables('networkSettings').dcPrivateIPAddress]",
+                "subnet": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').vNetPrivateName, variables('networkSettings').subnetDCName)]"
+                },
+                "publicIPAddress": "[if(equals(parameters('addPublicIPAddress'), 'Yes'), variables('networkSettings').vmDCPublicIPNicAssociation, json('null'))]"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "[variables('vmsSettings').vmDCName]",
+        "type": "Microsoft.Compute/virtualMachines",
+        "apiVersion": "2022-08-01",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/networkInterfaces', variables('vmsResourcesNames').vmDCNicName)]"
+        ],
+        "properties": {
+          "hardwareProfile": {
+            "vmSize": "[parameters('vmDCSize')]"
+          },
+          "osProfile": {
+            "computerName": "[variables('vmsSettings').vmDCName]",
+            "adminUsername": "[parameters('adminUserName')]",
+            "adminPassword": "[parameters('adminPassword')]",
+            "windowsConfiguration": {
+              "timeZone": "[parameters('vmsTimeZone')]",
+              "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
+              "provisionVMAgent": true,
+              "patchSettings": {
+                "patchMode": "[if(parameters('enableAutomaticUpdates'), 'AutomaticByOS', 'Manual')]",
+                "assessmentMode": "ImageDefault"
+              }
+            }
+          },
+          "storageProfile": {
+            "imageReference": {
+              "publisher":  "[split(variables('vmsSettings').vmDCImage, ':')[0]]",
+              "offer": "[split(variables('vmsSettings').vmDCImage, ':')[1]]",
+              "sku":  "[split(variables('vmsSettings').vmDCImage, ':')[2]]",
+              "version":  "[split(variables('vmsSettings').vmDCImage, ':')[3]]"
+            },
+            "osDisk": {
+              "name": "[concat('Disk-', variables('vmsSettings').vmDCName, '-OS')]",
+              "caching": "ReadWrite",
+              "osType": "Windows",
+              "createOption": "FromImage",
+              "diskSizeGB": 32,
+              "managedDisk": {
+                "storageAccountType": "[parameters('vmDCStorageAccountType')]"
+              }
+            }
+          },
+          "networkProfile": {
+            "networkInterfaces": [
+              {
+                "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmsResourcesNames').vmDCNicName)]"
+              }
+            ]
+          },
+          "licenseType": "[if(parameters('enableHybridBenefitServerLicenses'), 'Windows_Server', json('null'))]"
+        },
+        "resources": [
+          {
+            "name": "ConfigureDCVM",
+            "type": "extensions",
+            "location": "[parameters('location')]",
+            "apiVersion": "2022-08-01",
+            "dependsOn": [
+              "[resourceId('Microsoft.Compute/virtualMachines', variables('vmsSettings').vmDCName)]"
+            ],
+            "properties": {
+              "publisher": "Microsoft.Powershell",
+              "type": "DSC",
+              "typeHandlerVersion": "2.9",
+              "autoUpgradeMinorVersion": true,
+              "forceUpdateTag": "[variables('dscSettings').forceUpdateTag]",
+              "settings": {
+                "wmfVersion": "latest",
+                "privacy": {
+                  "dataCollection": "enable"
+                }
+              },
+              "protectedSettings": {
+                "configurationArguments": {
+                  "AdminCreds": {
+                    "UserName": "[parameters('adminUserName')]",
+                    "Password": "[parameters('adminPassword')]"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "condition": "[equals(parameters('addPublicIPAddress'), 'Yes')]",
+        "name": "[variables('vmsResourcesNames').vmSQLPublicIPName]",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "apiVersion": "2022-07-01",
+        "location": "[parameters('location')]",
+        "sku": {
+          "name": "Basic",
+          "tier": "Regional"
+        },
+        "properties": {
+          "publicIPAllocationMethod": "Dynamic",
+          "dnsSettings": {
+            "domainNameLabel": "[toLower(concat(variables('resourceGroupNameFormatted'), '-', variables('vmsSettings').vmSQLName))]"
+          }
+        }
+      },
+      {
+        "name": "[variables('vmsResourcesNames').vmSQLNicName]",
+        "type": "Microsoft.Network/networkInterfaces",
+        "apiVersion": "2022-07-01",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/virtualNetworks', variables('networkSettings').vNetPrivateName)]",
+          "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmSQLPublicIPName)]"
+        ],
+        "properties": {
+          "ipConfigurations": [
+            {
+              "name": "ipconfig1",
+              "properties": {
+                "privateIPAllocationMethod": "Dynamic",
+                "subnet": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').vNetPrivateName, variables('networkSettings').subnetSQLName)]"
+                },
+                "publicIPAddress": "[if(equals(parameters('addPublicIPAddress'), 'Yes'), variables('networkSettings').vmSQLPublicIPNicAssociation, json('null'))]"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "[variables('vmsSettings').vmSQLName]",
+        "type": "Microsoft.Compute/virtualMachines",
+        "apiVersion": "2022-08-01",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/networkInterfaces', variables('vmsResourcesNames').vmSQLNicName)]"
+        ],
+        "properties": {
+          "hardwareProfile": {
+            "vmSize": "[parameters('vmSQLSize')]"
+          },
+          "osProfile": {
+            "computerName": "[variables('vmsSettings').vmSQLName]",
+            "adminUsername": "[variables('deploymentSettings').localAdminUserName]",
+            "adminPassword": "[parameters('adminPassword')]",
+            "windowsConfiguration": {
+              "timeZone": "[parameters('vmsTimeZone')]",
+              "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
+              "provisionVMAgent": true,
+              "patchSettings": {
+                "patchMode": "[if(parameters('enableAutomaticUpdates'), 'AutomaticByOS', 'Manual')]",
+                "assessmentMode": "ImageDefault"
+              }
+            }
+          },
+          "storageProfile": {
+            "imageReference": {
+              "publisher":  "[split(variables('vmsSettings').vmSQLImage, ':')[0]]",
+              "offer": "[split(variables('vmsSettings').vmSQLImage, ':')[1]]",
+              "sku":  "[split(variables('vmsSettings').vmSQLImage, ':')[2]]",
+              "version":  "[split(variables('vmsSettings').vmSQLImage, ':')[3]]"
+            },
+            "osDisk": {
+              "name": "[concat('Disk-', variables('vmsSettings').vmSQLName, '-OS')]",
+              "caching": "ReadWrite",
+              "osType": "Windows",
+              "createOption": "FromImage",
+              "diskSizeGB": 128,
+              "managedDisk": {
+                "storageAccountType": "[parameters('vmSQLStorageAccountType')]"
+              }
+            }
+          },
+          "networkProfile": {
+            "networkInterfaces": [
+              {
+                "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmsResourcesNames').vmSQLNicName)]"
+              }
+            ]
+          },
+          "licenseType": "[if(parameters('enableHybridBenefitServerLicenses'), 'Windows_Server', json('null'))]"
+        },
+        "resources": []
+      },
+      {
+        "condition": "[and(equals(parameters('provisionSharePoint2013'), true()), or(equals(parameters('addPublicIPAddress'), 'Yes'), equals(parameters('addPublicIPAddress'), 'SharePointVMsOnly')))]",
+        "name": "[variables('vmsResourcesNames').vmSP2013PublicIPName]",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "apiVersion": "2022-07-01",
+        "location": "[parameters('location')]",
+        "sku": {
+          "name": "Basic",
+          "tier": "Regional"
+        },
+        "properties": {
+          "publicIPAllocationMethod": "Dynamic",
+          "dnsSettings": {
+            "domainNameLabel": "[toLower(concat(variables('resourceGroupNameFormatted'), '-', variables('vmsSettings').vmSP2013Name))]"
+          }
+        }
+      },
+      {
+        "condition": "[equals(parameters('provisionSharePoint2013'), true())]",
+        "name": "[variables('vmsResourcesNames').vmSP2013NicName]",
+        "type": "Microsoft.Network/networkInterfaces",
+        "apiVersion": "2022-07-01",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/virtualNetworks', variables('networkSettings').vNetPrivateName)]",
+          "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmSP2013PublicIPName)]"
+        ],
+        "properties": {
+          "ipConfigurations": [
+            {
+              "name": "ipconfig1",
+              "properties": {
+                "privateIPAllocationMethod": "Dynamic",
+                "subnet": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').vNetPrivateName, variables('networkSettings').subnetSPName)]"
+                },
+                "publicIPAddress": "[if(or(equals(parameters('addPublicIPAddress'), 'Yes'), equals(parameters('addPublicIPAddress'), 'SharePointVMsOnly')), variables('networkSettings').vmSP2013PublicIPNicAssociation, json('null'))]"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "condition": "[equals(parameters('provisionSharePoint2013'), true())]",
+        "name": "[variables('vmsSettings').vmSP2013Name]",
+        "type": "Microsoft.Compute/virtualMachines",
+        "apiVersion": "2022-08-01",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/networkInterfaces', variables('vmsResourcesNames').vmSP2013NicName)]"
+        ],
+        "properties": {
+          "hardwareProfile": {
+            "vmSize": "[parameters('vmSPSize')]"
+          },
+          "osProfile": {
+            "computerName": "[variables('vmsSettings').vmSP2013Name]",
+            "adminUsername": "[variables('deploymentSettings').localAdminUserName]",
+            "adminPassword": "[parameters('adminPassword')]",
+            "windowsConfiguration": {
+              "timeZone": "[parameters('vmsTimeZone')]",
+              "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
+              "provisionVMAgent": true,
+              "patchSettings": {
+                "patchMode": "[if(parameters('enableAutomaticUpdates'), 'AutomaticByOS', 'Manual')]",
+                "assessmentMode": "ImageDefault"
+              }
+            }
+          },
+          "storageProfile": {
+            "imageReference": {
+              "publisher":  "[split(variables('vmsSettings').vmSP2013Image, ':')[0]]",
+              "offer": "[split(variables('vmsSettings').vmSP2013Image, ':')[1]]",
+              "sku":  "[split(variables('vmsSettings').vmSP2013Image, ':')[2]]",
+              "version":  "[split(variables('vmsSettings').vmSP2013Image, ':')[3]]"
+            },
+            "osDisk": {
+              "name": "[concat('Disk-', variables('vmsSettings').vmSP2013Name, '-OS')]",
+              "caching": "ReadWrite",
+              "osType": "Windows",
+              "createOption": "FromImage",
+              "managedDisk": {
+                "storageAccountType": "[parameters('vmSPStorageAccountType')]"
+              }
+            }
+          },
+          "networkProfile": {
+            "networkInterfaces": [
+              {
+                "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmsResourcesNames').vmSP2013NicName)]"
+              }
+            ]
+          },
+          "licenseType": "[if(parameters('enableHybridBenefitServerLicenses'), 'Windows_Server', json('null'))]"
+        },
+        "resources": []
+      }
     ],
     "outputs": {
+      "domainAdminAccount": {
+        "type": "string",
+        "value": "[concat(substring(parameters('domainFQDN'), 0, indexOf(parameters('domainFQDN'), '.')), '\\', parameters('adminUserName'))]"
+      },
+      "localAdminAccount": {
+        "type": "string",
+        "value": "[variables('deploymentSettings').localAdminUserName]"
+      },
+      "publicIPAddressSQL": {
+        "condition": "[equals(parameters('addPublicIPAddress'), 'Yes')]",
+        "type": "string",
+        "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmSQLPublicIPName)).dnsSettings.fqdn]"
+      },
+      "publicIPAddressDC": {
+        "condition": "[equals(parameters('addPublicIPAddress'), 'Yes')]",
+        "type": "string",
+        "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmDCPublicIPName)).dnsSettings.fqdn]"
+      }
     }
-}
+  }
