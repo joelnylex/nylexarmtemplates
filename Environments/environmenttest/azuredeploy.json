@@ -15,7 +15,7 @@
       },
       "addPublicIPAddress": {
         "type": "string",
-        "defaultValue": "SharePointVMsOnly",
+        "defaultValue": "Yes",
         "allowedValues": [
           "Yes",
           "No",
@@ -242,7 +242,6 @@
         }
       },
       {
-        "condition": "[equals(parameters('addPublicIPAddress'), 'Yes')]",
         "name": "[variables('vmsResourcesNames').vmDCPublicIPName]",
         "type": "Microsoft.Network/publicIPAddresses",
         "apiVersion": "2022-07-01",
@@ -277,7 +276,7 @@
                 "subnet": {
                   "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').vNetPrivateName, variables('networkSettings').subnetDCName)]"
                 },
-                "publicIPAddress": "[if(equals(parameters('addPublicIPAddress'), 'Yes'), variables('networkSettings').vmDCPublicIPNicAssociation, json('null'))]"
+                "publicIPAddress": "[variables('networkSettings').vmDCPublicIPNicAssociation]"
               }
             }
           ]
@@ -338,7 +337,6 @@
         }
       },
       {
-        "condition": "[equals(parameters('addPublicIPAddress'), 'Yes')]",
         "name": "[variables('vmsResourcesNames').vmSQLPublicIPName]",
         "type": "Microsoft.Network/publicIPAddresses",
         "apiVersion": "2022-07-01",
@@ -372,7 +370,7 @@
                 "subnet": {
                   "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').vNetPrivateName, variables('networkSettings').subnetSQLName)]"
                 },
-                "publicIPAddress": "[if(equals(parameters('addPublicIPAddress'), 'Yes'), variables('networkSettings').vmSQLPublicIPNicAssociation, json('null'))]"
+                "publicIPAddress": "[variables('networkSettings').vmSQLPublicIPNicAssociation]"
               }
             }
           ]
@@ -436,12 +434,10 @@
     ],
     "outputs": {
       "publicIPAddressSQL": {
-        "condition": "[equals(parameters('addPublicIPAddress'), 'Yes')]",
         "type": "string",
         "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmSQLPublicIPName)).dnsSettings.fqdn]"
       },
       "publicIPAddressDC": {
-        "condition": "[equals(parameters('addPublicIPAddress'), 'Yes')]",
         "type": "string",
         "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmDCPublicIPName)).dnsSettings.fqdn]"
       }
