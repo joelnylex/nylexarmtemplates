@@ -31,12 +31,10 @@
       "resourceGroupNameFormatted": "[replace(replace(replace(replace(resourceGroup().name, '.', '-'), '(', '-'), ')', '-'), '_', '-')]",
       "networkSettings": {
         "vNetPrivatePrefix": "10.1.0.0/16",
-        "subnetDCPrefix": "10.1.1.0/24",
+        "subnetPrefix": "10.1.1.0/24",
         "dcPrivateIPAddress": "10.1.1.4",
-        "subnetServer2Prefix": "10.1.2.0/24",
         "vNetPrivateName": "[concat(variables('resourceGroupNameFormatted'), '-vnet')]",
-        "subnetDCName": "Subnet-DC",
-        "subnetServer2Name": "Subnet-Server2",
+        "subnetName": "Subnet",
         "nsgSubnetDCName": "NSG-Subnet-DC",
         "nsgSubnetServer2Name": "NSG-Subnet-Server2",
         "vmDCPublicIPNicAssociation": {
@@ -116,20 +114,11 @@
           },
           "subnets": [
             {
-              "name": "[variables('networkSettings').subnetDCName]",
+              "name": "[variables('networkSettings').subnetName]",
               "properties": {
-                "addressPrefix": "[variables('networkSettings').subnetDCPrefix]",
+                "addressPrefix": "[variables('networkSettings').subnetPrefix]",
                 "networkSecurityGroup": {
                   "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSettings').nsgSubnetDCName)]"
-                }
-              }
-            },
-            {
-              "name": "[variables('networkSettings').subnetServer2Name]",
-              "properties": {
-                "addressPrefix": "[variables('networkSettings').subnetServer2Prefix]",
-                "networkSecurityGroup": {
-                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSettings').nsgSubnetServer2Name)]"
                 }
               }
             }
@@ -169,7 +158,7 @@
                 "privateIPAllocationMethod": "Static",
                 "privateIPAddress": "[variables('networkSettings').dcPrivateIPAddress]",
                 "subnet": {
-                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').vNetPrivateName, variables('networkSettings').subnetDCName)]"
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').vNetPrivateName, variables('networkSettings').subnetName)]"
                 },
                 "publicIPAddress": "[variables('networkSettings').vmDCPublicIPNicAssociation]"
               }
@@ -257,7 +246,7 @@
               "properties": {
                 "privateIPAllocationMethod": "Dynamic",
                 "subnet": {
-                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').vNetPrivateName, variables('networkSettings').subnetServer2Name)]"
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').vNetPrivateName, variables('networkSettings').subnetName)]"
                 },
                 "publicIPAddress": "[variables('networkSettings').vmServer2PublicIPNicAssociation]"
               }
