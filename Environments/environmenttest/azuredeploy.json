@@ -6,19 +6,6 @@
       "author": "Joel Stephens"
     },
     "parameters": {
-     
-      "addPublicIPAddress": {
-        "type": "string",
-        "defaultValue": "Yes",
-        "allowedValues": [
-          "Yes",
-          "No",
-          "SharePointVMsOnly"
-        ],
-        "metadata": {
-          "description": "Specify if each VM should have a public IP and be reachable from Internet."
-        }
-      },
       "RDPTrafficAllowed": {
         "type": "string",
         "defaultValue": "Yes",
@@ -40,31 +27,6 @@
         "minLength": 8,
         "metadata": {
           "description": "Input must meet password complexity requirements as documented in https://learn.microsoft.com/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-"
-        }
-      },
-      "vmsTimeZone": {
-        "type": "string",
-        "defaultValue": "Pacific Standard Time",
-        "allowedValues": [
-          "Pacific Standard Time"
-        ],
-        "minLength": 2,
-        "metadata": {
-          "description": "Time zone of the virtual machines. Type \"[TimeZoneInfo]::GetSystemTimeZones().Id\" in PowerShell to get the list."
-        }
-      },
-      "enableAutomaticUpdates": {
-        "type": "bool",
-        "defaultValue": true,
-        "metadata": {
-          "description": "Enable automatic Windows Updates."
-        }
-      },
-      "enableHybridBenefitServerLicenses": {
-        "type": "bool",
-        "defaultValue": false,
-        "metadata": {
-          "description": "Enable Azure Hybrid Benefit to use your on-premises Windows Server licenses and reduce cost. See https://docs.microsoft.com/en-us/azure/virtual-machines/windows/hybrid-use-benefit-licensing for more information."
         }
       },
       "vmDCSize": {
@@ -114,6 +76,7 @@
     },
     "variables": {
       "location": "[resourceGroup().location]",
+      "vmsTimeZone": "Pacific Standard Time",
       "resourceGroupNameFormatted": "[replace(replace(replace(replace(resourceGroup().name, '.', '-'), '(', '-'), ')', '-'), '_', '-')]",
       "networkSettings": {
         "vNetPrivatePrefix": "10.1.0.0/16",
@@ -280,13 +243,8 @@
             "adminUsername": "[parameters('adminUserName')]",
             "adminPassword": "[parameters('adminPassword')]",
             "windowsConfiguration": {
-              "timeZone": "[parameters('vmsTimeZone')]",
-              "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
+              "timeZone": "[variables('vmsTimeZone')]",
               "provisionVMAgent": true,
-              "patchSettings": {
-                "patchMode": "[if(parameters('enableAutomaticUpdates'), 'AutomaticByOS', 'Manual')]",
-                "assessmentMode": "ImageDefault"
-              }
             }
           },
           "storageProfile": {
@@ -314,7 +272,6 @@
               }
             ]
           },
-          "licenseType": "[if(parameters('enableHybridBenefitServerLicenses'), 'Windows_Server', json('null'))]"
         }
       },
       {
@@ -374,13 +331,8 @@
             "adminUsername": "[variables('deploymentSettings').localAdminUserName]",
             "adminPassword": "[parameters('adminPassword')]",
             "windowsConfiguration": {
-              "timeZone": "[parameters('vmsTimeZone')]",
-              "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
-              "provisionVMAgent": true,
-              "patchSettings": {
-                "patchMode": "[if(parameters('enableAutomaticUpdates'), 'AutomaticByOS', 'Manual')]",
-                "assessmentMode": "ImageDefault"
-              }
+              "timeZone": "[variables('vmsTimeZone')]",
+              "provisionVMAgent": true
             }
           },
           "storageProfile": {
@@ -407,8 +359,7 @@
                 "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmsResourcesNames').vmServer2NicName)]"
               }
             ]
-          },
-          "licenseType": "[if(parameters('enableHybridBenefitServerLicenses'), 'Windows_Server', json('null'))]"
+          }
         },
         "resources": []
       }
