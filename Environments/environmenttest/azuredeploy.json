@@ -6,14 +6,6 @@
       "author": "Joel Stephens"
     },
     "parameters": {
-      "RDPTrafficAllowed": {
-        "type": "string",
-        "defaultValue": "Yes",
-        "minLength": 1,
-        "metadata": {
-          "description": "Specify if RDP traffic is allowed:<br>- If 'No' (default): Firewall denies all incoming RDP traffic.<br>- If '*' or 'Internet': Firewall accepts all incoming RDP traffic from Internet.<br>- If CIDR notation (e.g. 192.168.99.0/24 or 2001:1234::/64) or IP address (e.g. 192.168.99.0 or 2001:1234::): Firewall accepts incoming RDP traffic from the IP addresses specified."
-        }
-      },
       "adminUserName": {
         "type": "string",
         "minLength": 1,
@@ -28,55 +20,14 @@
         "metadata": {
           "description": "Input must meet password complexity requirements as documented in https://learn.microsoft.com/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-"
         }
-      },
-      "vmDCSize": {
-        "type": "string",
-        "defaultValue": "Standard_B2s",
-        "metadata": {
-          "description": "Size of the DC VM"
-        }
-      },
-      "vmDCStorageAccountType": {
-        "type": "string",
-        "defaultValue": "StandardSSD_LRS",
-        "allowedValues": [
-          "Standard_LRS",
-          "StandardSSD_LRS",
-          "Premium_LRS",
-          "Premium_ZRS",
-          "StandardSSD_ZRS",
-          "UltraSSD_LRS"
-        ],
-        "metadata": {
-          "description": "Type of storage for the managed disks. Visit 'https://docs.microsoft.com/en-us/rest/api/compute/disks/list#diskstorageaccounttypes' for more information"
-        }
-      },
-      "vmServer2Size": {
-        "type": "string",
-        "defaultValue": "Standard_B2ms",
-        "metadata": {
-          "description": "Size of the Server2 VM"
-        }
-      },
-      "vmServer2StorageAccountType": {
-        "type": "string",
-        "defaultValue": "StandardSSD_LRS",
-        "allowedValues": [
-          "Standard_LRS",
-          "StandardSSD_LRS",
-          "Premium_LRS",
-          "Premium_ZRS",
-          "StandardSSD_ZRS",
-          "UltraSSD_LRS"
-        ],
-        "metadata": {
-          "description": "Type of storage for the managed disks. Visit 'https://docs.microsoft.com/en-us/rest/api/compute/disks/list#diskstorageaccounttypes' for more information"
-        }
       }
     },
     "variables": {
+      "RDPTrafficAllowed": "Yes",
       "location": "[resourceGroup().location]",
       "vmsTimeZone": "Pacific Standard Time",
+      "vmSize": "Standard_B2s",
+      "storageAccountType": "StandardSSD_LRS",
       "resourceGroupNameFormatted": "[replace(replace(replace(replace(resourceGroup().name, '.', '-'), '(', '-'), ')', '-'), '_', '-')]",
       "networkSettings": {
         "vNetPrivatePrefix": "10.1.0.0/16",
@@ -136,7 +87,7 @@
         "apiVersion": "2022-07-01",
         "location": "[variables('location')]",
         "properties": {
-          "securityRules": "[if(equals(toLower(parameters('RDPTrafficAllowed')), 'no'), json('null'), variables('networkSettings').nsgRuleAllowIncomingRdp)]"
+          "securityRules": "[if(equals(toLower(variables('RDPTrafficAllowed')), 'no'), json('null'), variables('networkSettings').nsgRuleAllowIncomingRdp)]"
         }
       },
       {
@@ -145,7 +96,7 @@
         "apiVersion": "2022-07-01",
         "location": "[variables('location')]",
         "properties": {
-          "securityRules": "[if(equals(toLower(parameters('RDPTrafficAllowed')), 'no'), json('null'), variables('networkSettings').nsgRuleAllowIncomingRdp)]"
+          "securityRules": "[if(equals(toLower(variables('RDPTrafficAllowed')), 'no'), json('null'), variables('networkSettings').nsgRuleAllowIncomingRdp)]"
         }
       },
       {
@@ -236,7 +187,7 @@
         ],
         "properties": {
           "hardwareProfile": {
-            "vmSize": "[parameters('vmDCSize')]"
+            "vmSize": "[variables('vmSize')]"
           },
           "osProfile": {
             "computerName": "[variables('vmsSettings').vmDCName]",
@@ -261,7 +212,7 @@
               "createOption": "FromImage",
               "diskSizeGB": 32,
               "managedDisk": {
-                "storageAccountType": "[parameters('vmDCStorageAccountType')]"
+                "storageAccountType": "[variables('storageAccountType')]"
               }
             }
           },
@@ -324,7 +275,7 @@
         ],
         "properties": {
           "hardwareProfile": {
-            "vmSize": "[parameters('vmServer2Size')]"
+            "vmSize": "[variables('vmSize')]"
           },
           "osProfile": {
             "computerName": "[variables('vmsSettings').vmServer2Name]",
@@ -349,7 +300,7 @@
               "createOption": "FromImage",
               "diskSizeGB": 128,
               "managedDisk": {
-                "storageAccountType": "[parameters('vmServer2StorageAccountType')]"
+                "storageAccountType": "[variables('storageAccountType')]"
               }
             }
           },
