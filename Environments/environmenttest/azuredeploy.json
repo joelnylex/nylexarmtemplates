@@ -30,6 +30,7 @@
       "adminUserName": {
         "type": "string",
         "minLength": 1,
+        "defaultValue": "nylexadmin",
         "metadata": {
           "description": "Name of the AD and SharePoint administrator. 'admin' and 'administrator' are not allowed."
         }
@@ -88,14 +89,14 @@
           "description": "Type of storage for the managed disks. Visit 'https://docs.microsoft.com/en-us/rest/api/compute/disks/list#diskstorageaccounttypes' for more information"
         }
       },
-      "vmSQLSize": {
+      "vmServer2Size": {
         "type": "string",
         "defaultValue": "Standard_B2ms",
         "metadata": {
-          "description": "Size of the SQL VM"
+          "description": "Size of the Server2 VM"
         }
       },
-      "vmSQLStorageAccountType": {
+      "vmServer2StorageAccountType": {
         "type": "string",
         "defaultValue": "StandardSSD_LRS",
         "allowedValues": [
@@ -118,17 +119,17 @@
         "vNetPrivatePrefix": "10.1.0.0/16",
         "subnetDCPrefix": "10.1.1.0/24",
         "dcPrivateIPAddress": "10.1.1.4",
-        "subnetSQLPrefix": "10.1.2.0/24",
+        "subnetServer2Prefix": "10.1.2.0/24",
         "vNetPrivateName": "[concat(variables('resourceGroupNameFormatted'), '-vnet')]",
         "subnetDCName": "Subnet-DC",
-        "subnetSQLName": "Subnet-SQL",
+        "subnetServer2Name": "Subnet-Server2",
         "nsgSubnetDCName": "NSG-Subnet-DC",
-        "nsgSubnetSQLName": "NSG-Subnet-SQL",
+        "nsgSubnetServer2Name": "NSG-Subnet-Server2",
         "vmDCPublicIPNicAssociation": {
           "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmDCPublicIPName)]"
         },
-        "vmSQLPublicIPNicAssociation": {
-          "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmSQLPublicIPName)]"
+        "vmServer2PublicIPNicAssociation": {
+          "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmServer2PublicIPName)]"
         },
         "nsgRuleAllowIncomingRdp": [
           {
@@ -149,15 +150,15 @@
       },
       "vmsSettings": {
         "vmDCName": "DC",
-        "vmSQLName": "SQL",
+        "vmServer2Name": "Server2",
         "vmDCImage": "MicrosoftWindowsServer:WindowsServer:2022-datacenter-azure-edition-smalldisk:latest",
-        "vmSQLImage": "MicrosoftWindowsServer:WindowsServer:2022-datacenter-azure-edition-smalldisk:latest"
+        "vmServer2Image": "MicrosoftWindowsServer:WindowsServer:2022-datacenter-azure-edition-smalldisk:latest"
       },
       "vmsResourcesNames": {
         "vmDCNicName": "[concat('NIC-', variables('vmsSettings').vmDCName, '-0')]",
         "vmDCPublicIPName": "[concat('PublicIP-', variables('vmsSettings').vmDCName)]",
-        "vmSQLNicName": "[concat('NIC-', variables('vmsSettings').vmSQLName, '-0')]",
-        "vmSQLPublicIPName": "[concat('PublicIP-', variables('vmsSettings').vmSQLName)]"
+        "vmServer2NicName": "[concat('NIC-', variables('vmsSettings').vmServer2Name, '-0')]",
+        "vmServer2PublicIPName": "[concat('PublicIP-', variables('vmsSettings').vmServer2Name)]"
       },
       "deploymentSettings": {
         "localAdminUserName": "[concat('local-', uniqueString(subscription().subscriptionId))]",
@@ -176,7 +177,7 @@
         }
       },
       {
-        "name": "[variables('networkSettings').nsgSubnetSQLName]",
+        "name": "[variables('networkSettings').nsgSubnetServer2Name]",
         "type": "Microsoft.Network/networkSecurityGroups",
         "apiVersion": "2022-07-01",
         "location": "[variables('location')]",
@@ -191,7 +192,7 @@
         "location": "[variables('location')]",
         "dependsOn": [
           "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSettings').nsgSubnetDCName)]",
-          "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSettings').nsgSubnetSQLName)]"
+          "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSettings').nsgSubnetServer2Name)]"
         ],
         "properties": {
           "addressSpace": {
@@ -210,11 +211,11 @@
               }
             },
             {
-              "name": "[variables('networkSettings').subnetSQLName]",
+              "name": "[variables('networkSettings').subnetServer2Name]",
               "properties": {
-                "addressPrefix": "[variables('networkSettings').subnetSQLPrefix]",
+                "addressPrefix": "[variables('networkSettings').subnetServer2Prefix]",
                 "networkSecurityGroup": {
-                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSettings').nsgSubnetSQLName)]"
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSettings').nsgSubnetServer2Name)]"
                 }
               }
             }
@@ -317,7 +318,7 @@
         }
       },
       {
-        "name": "[variables('vmsResourcesNames').vmSQLPublicIPName]",
+        "name": "[variables('vmsResourcesNames').vmServer2PublicIPName]",
         "type": "Microsoft.Network/publicIPAddresses",
         "apiVersion": "2022-07-01",
         "location": "[variables('location')]",
@@ -328,18 +329,18 @@
         "properties": {
           "publicIPAllocationMethod": "Dynamic",
           "dnsSettings": {
-            "domainNameLabel": "[toLower(concat(variables('resourceGroupNameFormatted'), '-', variables('vmsSettings').vmSQLName))]"
+            "domainNameLabel": "[toLower(concat(variables('resourceGroupNameFormatted'), '-', variables('vmsSettings').vmServer2Name))]"
           }
         }
       },
       {
-        "name": "[variables('vmsResourcesNames').vmSQLNicName]",
+        "name": "[variables('vmsResourcesNames').vmServer2NicName]",
         "type": "Microsoft.Network/networkInterfaces",
         "apiVersion": "2022-07-01",
         "location": "[variables('location')]",
         "dependsOn": [
           "[resourceId('Microsoft.Network/virtualNetworks', variables('networkSettings').vNetPrivateName)]",
-          "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmSQLPublicIPName)]"
+          "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmServer2PublicIPName)]"
         ],
         "properties": {
           "ipConfigurations": [
@@ -348,28 +349,28 @@
               "properties": {
                 "privateIPAllocationMethod": "Dynamic",
                 "subnet": {
-                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').vNetPrivateName, variables('networkSettings').subnetSQLName)]"
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').vNetPrivateName, variables('networkSettings').subnetServer2Name)]"
                 },
-                "publicIPAddress": "[variables('networkSettings').vmSQLPublicIPNicAssociation]"
+                "publicIPAddress": "[variables('networkSettings').vmServer2PublicIPNicAssociation]"
               }
             }
           ]
         }
       },
       {
-        "name": "[variables('vmsSettings').vmSQLName]",
+        "name": "[variables('vmsSettings').vmServer2Name]",
         "type": "Microsoft.Compute/virtualMachines",
         "apiVersion": "2022-08-01",
         "location": "[variables('location')]",
         "dependsOn": [
-          "[resourceId('Microsoft.Network/networkInterfaces', variables('vmsResourcesNames').vmSQLNicName)]"
+          "[resourceId('Microsoft.Network/networkInterfaces', variables('vmsResourcesNames').vmServer2NicName)]"
         ],
         "properties": {
           "hardwareProfile": {
-            "vmSize": "[parameters('vmSQLSize')]"
+            "vmSize": "[parameters('vmServer2Size')]"
           },
           "osProfile": {
-            "computerName": "[variables('vmsSettings').vmSQLName]",
+            "computerName": "[variables('vmsSettings').vmServer2Name]",
             "adminUsername": "[variables('deploymentSettings').localAdminUserName]",
             "adminPassword": "[parameters('adminPassword')]",
             "windowsConfiguration": {
@@ -384,26 +385,26 @@
           },
           "storageProfile": {
             "imageReference": {
-              "publisher":  "[split(variables('vmsSettings').vmSQLImage, ':')[0]]",
-              "offer": "[split(variables('vmsSettings').vmSQLImage, ':')[1]]",
-              "sku":  "[split(variables('vmsSettings').vmSQLImage, ':')[2]]",
-              "version":  "[split(variables('vmsSettings').vmSQLImage, ':')[3]]"
+              "publisher":  "[split(variables('vmsSettings').vmServer2Image, ':')[0]]",
+              "offer": "[split(variables('vmsSettings').vmServer2Image, ':')[1]]",
+              "sku":  "[split(variables('vmsSettings').vmServer2Image, ':')[2]]",
+              "version":  "[split(variables('vmsSettings').vmServer2Image, ':')[3]]"
             },
             "osDisk": {
-              "name": "[concat('Disk-', variables('vmsSettings').vmSQLName, '-OS')]",
+              "name": "[concat('Disk-', variables('vmsSettings').vmServer2Name, '-OS')]",
               "caching": "ReadWrite",
               "osType": "Windows",
               "createOption": "FromImage",
               "diskSizeGB": 128,
               "managedDisk": {
-                "storageAccountType": "[parameters('vmSQLStorageAccountType')]"
+                "storageAccountType": "[parameters('vmServer2StorageAccountType')]"
               }
             }
           },
           "networkProfile": {
             "networkInterfaces": [
               {
-                "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmsResourcesNames').vmSQLNicName)]"
+                "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmsResourcesNames').vmServer2NicName)]"
               }
             ]
           },
@@ -413,9 +414,9 @@
       }
     ],
     "outputs": {
-      "publicIPAddressSQL": {
+      "publicIPAddressServer2": {
         "type": "string",
-        "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmSQLPublicIPName)).dnsSettings.fqdn]"
+        "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmServer2PublicIPName)).dnsSettings.fqdn]"
       },
       "publicIPAddressDC": {
         "type": "string",
