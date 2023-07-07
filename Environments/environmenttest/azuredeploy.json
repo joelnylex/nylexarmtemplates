@@ -3,16 +3,10 @@
     "contentVersion": "4.0.0.0",
     "metadata": {
       "description": "Deploy DCLab",
-      "author": "Yvand"
+      "author": "Joel Stephens"
     },
     "parameters": {
-      "location": {
-        "type": "string",
-        "defaultValue": "[resourceGroup().location]",
-        "metadata": {
-          "description": "Location for all resources."
-        }
-      },
+     
       "addPublicIPAddress": {
         "type": "string",
         "defaultValue": "Yes",
@@ -115,25 +109,11 @@
         "metadata": {
           "description": "Type of storage for the managed disks. Visit 'https://docs.microsoft.com/en-us/rest/api/compute/disks/list#diskstorageaccounttypes' for more information"
         }
-      },
-      "_artifactsLocation": {
-        "type": "string",
-        "defaultValue": "https://github.com/Azure/azure-devtestlab/raw/master/Environments/SharePoint-AllVersions",
-        "metadata": {
-          "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
-        }
-      },
-      "_artifactsLocationSasToken": {
-        "type": "securestring",
-        "defaultValue": "",
-        "metadata": {
-          "description": "The sasToken required to access _artifactsLocation. When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
-        }
       }
     },
     "variables": {
+      "location": "[resourceGroup().location]",
       "resourceGroupNameFormatted": "[replace(replace(replace(replace(resourceGroup().name, '.', '-'), '(', '-'), ')', '-'), '_', '-')]",
-      "_artifactsLocationWithTrailingSlash": "[concat(parameters('_artifactsLocation'), '/')]",
       "networkSettings": {
         "vNetPrivatePrefix": "10.1.0.0/16",
         "subnetDCPrefix": "10.1.1.0/24",
@@ -190,7 +170,7 @@
         "name": "[variables('networkSettings').nsgSubnetDCName]",
         "type": "Microsoft.Network/networkSecurityGroups",
         "apiVersion": "2022-07-01",
-        "location": "[parameters('location')]",
+        "location": "[variables('location')]",
         "properties": {
           "securityRules": "[if(equals(toLower(parameters('RDPTrafficAllowed')), 'no'), json('null'), variables('networkSettings').nsgRuleAllowIncomingRdp)]"
         }
@@ -199,7 +179,7 @@
         "name": "[variables('networkSettings').nsgSubnetSQLName]",
         "type": "Microsoft.Network/networkSecurityGroups",
         "apiVersion": "2022-07-01",
-        "location": "[parameters('location')]",
+        "location": "[variables('location')]",
         "properties": {
           "securityRules": "[if(equals(toLower(parameters('RDPTrafficAllowed')), 'no'), json('null'), variables('networkSettings').nsgRuleAllowIncomingRdp)]"
         }
@@ -208,7 +188,7 @@
         "name": "[variables('networkSettings').vNetPrivateName]",
         "type": "Microsoft.Network/virtualNetworks",
         "apiVersion": "2022-07-01",
-        "location": "[parameters('location')]",
+        "location": "[variables('location')]",
         "dependsOn": [
           "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSettings').nsgSubnetDCName)]",
           "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSettings').nsgSubnetSQLName)]"
@@ -245,7 +225,7 @@
         "name": "[variables('vmsResourcesNames').vmDCPublicIPName]",
         "type": "Microsoft.Network/publicIPAddresses",
         "apiVersion": "2022-07-01",
-        "location": "[parameters('location')]",
+        "location": "[variables('location')]",
         "sku": {
           "name": "Basic",
           "tier": "Regional"
@@ -261,7 +241,7 @@
         "name": "[variables('vmsResourcesNames').vmDCNicName]",
         "type": "Microsoft.Network/networkInterfaces",
         "apiVersion": "2022-07-01",
-        "location": "[parameters('location')]",
+        "location": "[variables('location')]",
         "dependsOn": [
           "[resourceId('Microsoft.Network/virtualNetworks', variables('networkSettings').vNetPrivateName)]",
           "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmDCPublicIPName)]"
@@ -286,7 +266,7 @@
         "name": "[variables('vmsSettings').vmDCName]",
         "type": "Microsoft.Compute/virtualMachines",
         "apiVersion": "2022-08-01",
-        "location": "[parameters('location')]",
+        "location": "[variables('location')]",
         "dependsOn": [
           "[resourceId('Microsoft.Network/networkInterfaces', variables('vmsResourcesNames').vmDCNicName)]"
         ],
@@ -340,7 +320,7 @@
         "name": "[variables('vmsResourcesNames').vmSQLPublicIPName]",
         "type": "Microsoft.Network/publicIPAddresses",
         "apiVersion": "2022-07-01",
-        "location": "[parameters('location')]",
+        "location": "[variables('location')]",
         "sku": {
           "name": "Basic",
           "tier": "Regional"
@@ -356,7 +336,7 @@
         "name": "[variables('vmsResourcesNames').vmSQLNicName]",
         "type": "Microsoft.Network/networkInterfaces",
         "apiVersion": "2022-07-01",
-        "location": "[parameters('location')]",
+        "location": "[variables('location')]",
         "dependsOn": [
           "[resourceId('Microsoft.Network/virtualNetworks', variables('networkSettings').vNetPrivateName)]",
           "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmsResourcesNames').vmSQLPublicIPName)]"
@@ -380,7 +360,7 @@
         "name": "[variables('vmsSettings').vmSQLName]",
         "type": "Microsoft.Compute/virtualMachines",
         "apiVersion": "2022-08-01",
-        "location": "[parameters('location')]",
+        "location": "[variables('location')]",
         "dependsOn": [
           "[resourceId('Microsoft.Network/networkInterfaces', variables('vmsResourcesNames').vmSQLNicName)]"
         ],
