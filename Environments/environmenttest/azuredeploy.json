@@ -328,7 +328,7 @@
           },
           "osProfile": {
             "computerName": "[variables('vmsSettings').vmServer2Name]",
-            "adminUsername": "[variables('deploymentSettings').localAdminUserName]",
+            "adminUsername": "[parameters('adminUserName')]",
             "adminPassword": "[parameters('adminPassword')]",
             "windowsConfiguration": {
               "timeZone": "[variables('vmsTimeZone')]",
