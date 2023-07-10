@@ -6,6 +6,10 @@
       "author": "Joel Stephens"
     },
     "parameters": {
+      "currentTime": {
+        "type": "string",
+        "defaultValue": "[utcNow()]"
+      },
       "adminUserName": {
         "type": "string",
         "minLength": 1,
@@ -174,6 +178,7 @@
           "[resourceId('Microsoft.Network/networkInterfaces', variables('vmsResourcesNames').vmDCNicName)]"
         ],
         "properties": {
+          "expirationDate": "[dateTimeAdd(parameters('currentTime'), 'PT1H')]",
           "hardwareProfile": {
             "vmSize": "[variables('vmSize')]"
           },
@@ -262,6 +267,7 @@
           "[resourceId('Microsoft.Network/networkInterfaces', variables('vmsResourcesNames').vmServer2NicName)]"
         ],
         "properties": {
+          "expirationDate": "[dateTimeAdd(parameters('currentTime'), 'PT1H')]",
           "hardwareProfile": {
             "vmSize": "[variables('vmSize')]"
           },
