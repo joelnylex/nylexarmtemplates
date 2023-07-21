@@ -187,7 +187,7 @@
             "adminPassword": "[parameters('adminPassword')]",
             "windowsConfiguration": {
               "timeZone": "[variables('vmsTimeZone')]",
-              "provisionVMAgent": true,
+              "provisionVMAgent": true
             }
           },
           "storageProfile": {
