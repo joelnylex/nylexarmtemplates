@@ -65,8 +65,8 @@
         ]
       },
       "vmsSettings": {
-        "vmDCName": "DC",
-        "vmServer2Name": "Server2",
+        "vmDCName": "Lab-DC1",
+        "vmServer2Name": "Lab-Server2",
         "vmDCImage": "MicrosoftWindowsServer:WindowsServer:2022-datacenter-azure-edition-smalldisk:latest",
         "vmServer2Image": "MicrosoftWindowsServer:WindowsServer:2022-datacenter-azure-edition-smalldisk:latest"
       },
