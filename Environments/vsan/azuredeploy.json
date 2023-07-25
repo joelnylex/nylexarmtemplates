@@ -181,7 +181,7 @@
                 },
                 "dataDisks": [
                     {
-                        "name": "node1data",
+                        "name": "node1datadisk",
                         "diskSizeGB": 1023,
                         "lun": 0,
                         "managedDisk": {
@@ -368,7 +368,7 @@
                     },
                     "dataDisks": [
                     {
-                        "name": "node2data",
+                        "name": "node2datadisk",
                         "diskSizeGB": 1023,
                         "lun": 0,
                         "managedDisk": {
