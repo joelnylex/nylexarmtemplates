@@ -156,6 +156,7 @@
             "displayName": "Node1 Management Interface"
         },
         "properties": {
+            "Primary": true,
             "ipConfigurations": [
                 {
                     "name": "ipConfig1",
@@ -185,6 +186,7 @@
             "displayName": "Node1 sync Interface"
         },
         "properties": {
+            "primary": false,
             "ipConfigurations": [
                 {
                     "name": "ipConfig1",
@@ -211,6 +213,7 @@
             "displayName": "Node1 iscsi Interface"
         },
         "properties": {
+            "primary": false,
             "ipConfigurations": [
                 {
                     "name": "ipConfig1",
@@ -322,6 +325,7 @@
                 "displayName": "Node2 Management Interface"
             },
             "properties": {
+                "primary": true,
                 "ipConfigurations": [
                     {
                         "name": "ipConfig1",
@@ -351,6 +355,7 @@
                 "displayName": "Node2 sync Interface"
             },
             "properties": {
+                "primary": false,
                 "ipConfigurations": [
                     {
                         "name": "ipConfig1",
@@ -377,6 +382,7 @@
                 "displayName": "Node2 iscsi Interface"
             },
             "properties": {
+                "primary": false,
                 "ipConfigurations": [
                     {
                         "name": "ipConfig1",
