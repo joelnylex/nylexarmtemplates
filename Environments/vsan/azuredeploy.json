@@ -156,7 +156,6 @@
             "displayName": "Node1 Management Interface"
         },
         "properties": {
-            "Primary": true,
             "ipConfigurations": [
                 {
                     "name": "ipConfig1",
@@ -186,7 +185,6 @@
             "displayName": "Node1 sync Interface"
         },
         "properties": {
-            "primary": false,
             "ipConfigurations": [
                 {
                     "name": "ipConfig1",
@@ -213,7 +211,6 @@
             "displayName": "Node1 iscsi Interface"
         },
         "properties": {
-            "primary": false,
             "ipConfigurations": [
                 {
                     "name": "ipConfig1",
@@ -278,13 +275,22 @@
             "networkProfile": {
                 "networkInterfaces": [
                     {
-                        "id": "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-management-nic')]"
+                        "id": "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-management-nic')]",
+                        "properties": {
+                            "primary": true
+                        }
                     },
                     {
-                        "id": "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-sync-nic')]"
+                        "id": "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-sync-nic')]",
+                        "properties": {
+                            "primary": false
+                        }
                     },
                     {
-                        "id": "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-iscsi-nic')]"
+                        "id": "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-iscsi-nic')]",
+                        "properties": {
+                            "primary": false
+                        }
                     }
                 ]
             },
@@ -325,7 +331,6 @@
                 "displayName": "Node2 Management Interface"
             },
             "properties": {
-                "primary": true,
                 "ipConfigurations": [
                     {
                         "name": "ipConfig1",
@@ -355,7 +360,6 @@
                 "displayName": "Node2 sync Interface"
             },
             "properties": {
-                "primary": false,
                 "ipConfigurations": [
                     {
                         "name": "ipConfig1",
@@ -382,7 +386,6 @@
                 "displayName": "Node2 iscsi Interface"
             },
             "properties": {
-                "primary": false,
                 "ipConfigurations": [
                     {
                         "name": "ipConfig1",
@@ -447,13 +450,22 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-management-nic')]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-management-nic')]",
+                        "properties": {
+                            "primary": true
+                        }
                         },
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-sync-nic')]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-sync-nic')]",
+                        "properties": {
+                            "primary": false
+                        }
                         },
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-iscsi-nic')]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-iscsi-nic')]",
+                        "properties": {
+                            "primary": false
+                        }
                         }
                     ]
                 },
