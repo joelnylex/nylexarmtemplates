@@ -160,7 +160,7 @@
         },
         "properties": {
             "hardwareProfile": {
-                "vmSize": "Standard_A2_v2"
+                "vmSize": "Standard_B2s"
             },
             "osProfile": {
                 "computerName": "Node1",
@@ -347,7 +347,7 @@
             },
             "properties": {
                 "hardwareProfile": {
-                    "vmSize": "Standard_A2_v2"
+                    "vmSize": "Standard_B2s"
                 },
                 "osProfile": {
                     "computerName": "Node2",
@@ -518,7 +518,7 @@
             },
             "properties": {
                 "hardwareProfile": {
-                    "vmSize": "Standard_A2_v2"
+                    "vmSize": "Standard_B2s"
                 },
                 "osProfile": {
                     "computerName": "win11VM",
