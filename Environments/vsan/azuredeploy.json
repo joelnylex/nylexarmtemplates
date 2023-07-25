@@ -187,7 +187,7 @@
                         "managedDisk": {
                             "id": "[resourceId('Microsoft.Compute/disks/', 'node1datadisk' )]"
                         },
-                        "createOption": "Empty"
+                        "createOption": "Attach"
                     }
                 ]
             },
@@ -374,7 +374,7 @@
                         "managedDisk": {
                             "id": "[resourceId('Microsoft.Compute/disks/', 'node2datadisk' )]"
                         },
-                        "createOption": "Empty"
+                        "createOption": "Attach"
                     }
                 ]
                 },
