@@ -230,8 +230,10 @@
         "apiVersion": "2021-03-01",
         "location": "[resourceGroup().location]",
         "dependsOn": [
-            "[resourceId('Microsoft.Storage/storageAccounts', toLower('Node1storage'))]",
-            "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-NetworkInterface')]",
+            "[resourceId('Microsoft.Storage/storageAccounts', toLower('lab-storage'))]",
+            "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-management-nic')]",
+            "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-sync-nic')]",
+            "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-iscsi-nic')]",
             "[resourceId('Microsoft.Compute/disks/', 'node1datadisk')]"
         ],
         "tags": {
@@ -286,24 +288,11 @@
             "diagnosticsProfile": {
                 "bootDiagnostics": {
                     "enabled": true,
-                    "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('Node1storage'))).primaryEndpoints.blob]"
+                    "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('lab-storage'))).primaryEndpoints.blob]"
                 }
             }
         }
     },
-        {
-            "name": "[toLower('Node2storage')]",
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2021-04-01",
-            "location": "[resourceGroup().location]",
-            "tags": {
-                "displayName": "Node2 Storage Account"
-            },
-            "sku": {
-                "name": "Standard_LRS"
-            },
-            "kind": "Storage"
-        },
         
         {
             "name": "Node2-PublicIP",
@@ -407,7 +396,7 @@
             "apiVersion": "2021-03-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', toLower('Node2storage'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', toLower('lab-storage'))]",
                 "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-management-nic')]",
                 "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-sync-nic')]",
                 "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-iscsi-nic')]",
@@ -465,23 +454,10 @@
                 "diagnosticsProfile": {
                     "bootDiagnostics": {
                         "enabled": true,
-                        "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('Node2storage'))).primaryEndpoints.blob]"
+                        "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('lab-storage'))).primaryEndpoints.blob]"
                     }
                 }
             }
-        },
-        {
-            "name": "[toLower('win11VMstorage')]",
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2021-04-01",
-            "location": "[resourceGroup().location]",
-            "tags": {
-                "displayName": "win11VM Storage Account"
-            },
-            "sku": {
-                "name": "Standard_LRS"
-            },
-            "kind": "Storage"
         },
         {
             "name": "win11VM-PublicIP",
@@ -533,7 +509,7 @@
             "apiVersion": "2021-03-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', toLower('win11VMstorage'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', toLower('lab-storage'))]",
                 "[resourceId('Microsoft.Network/networkInterfaces', 'win11VM-NetworkInterface')]"
             ],
             "tags": {
@@ -571,7 +547,7 @@
                 "diagnosticsProfile": {
                     "bootDiagnostics": {
                         "enabled": true,
-                        "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('win11VMstorage'))).primaryEndpoints.blob]"
+                        "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('lab-storage'))).primaryEndpoints.blob]"
                     }
                 }
             }
