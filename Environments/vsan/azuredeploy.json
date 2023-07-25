@@ -131,13 +131,13 @@
                 {
                     "name": "vnet1-sync",
                     "properties": {
-                        "addressPrefix": "10.1.0.0/24",
+                        "addressPrefix": "10.1.0.0/24"
                     }
                 },
                 {
                     "name": "vnet1-iscsi",
                     "properties": {
-                        "addressPrefix": "10.2.0.0/24",
+                        "addressPrefix": "10.2.0.0/24"
                     }
                 }
             ]
