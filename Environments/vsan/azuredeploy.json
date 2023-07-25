@@ -153,7 +153,7 @@
         "dependsOn": [
             "[resourceId('Microsoft.Storage/storageAccounts', toLower('Node1storage'))]",
             "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-NetworkInterface')]",
-            "[resourceId('Microsoft.Compute/disks/', parameters('node1datadisk'))]"
+            "[resourceId('Microsoft.Compute/disks/', 'node1datadisk')]"
         ],
         "tags": {
             "displayName": "Node1"
