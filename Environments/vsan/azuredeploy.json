@@ -20,7 +20,7 @@
 
     },
     "resources": [{
-        "name": "[toLower('labstorage')]",
+        "name": "[toLower('labstorage4324654')]",
         "type": "Microsoft.Storage/storageAccounts",
         "apiVersion": "2021-04-01",
         "location": "[resourceGroup().location]",
@@ -230,7 +230,7 @@
         "apiVersion": "2021-03-01",
         "location": "[resourceGroup().location]",
         "dependsOn": [
-            "[resourceId('Microsoft.Storage/storageAccounts', toLower('labstorage'))]",
+            "[resourceId('Microsoft.Storage/storageAccounts', toLower('labstorage4324654'))]",
             "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-management-nic')]",
             "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-sync-nic')]",
             "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-iscsi-nic')]",
@@ -288,7 +288,7 @@
             "diagnosticsProfile": {
                 "bootDiagnostics": {
                     "enabled": true,
-                    "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('labstorage'))).primaryEndpoints.blob]"
+                    "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('labstorage4324654'))).primaryEndpoints.blob]"
                 }
             }
         }
@@ -396,7 +396,7 @@
             "apiVersion": "2021-03-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', toLower('labstorage'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', toLower('labstorage4324654'))]",
                 "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-management-nic')]",
                 "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-sync-nic')]",
                 "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-iscsi-nic')]",
@@ -454,7 +454,7 @@
                 "diagnosticsProfile": {
                     "bootDiagnostics": {
                         "enabled": true,
-                        "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('labstorage'))).primaryEndpoints.blob]"
+                        "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('labstorage4324654'))).primaryEndpoints.blob]"
                     }
                 }
             }
@@ -509,7 +509,7 @@
             "apiVersion": "2021-03-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', toLower('labstorage'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', toLower('labstorage4324654'))]",
                 "[resourceId('Microsoft.Network/networkInterfaces', 'win11VM-NetworkInterface')]"
             ],
             "tags": {
@@ -547,7 +547,7 @@
                 "diagnosticsProfile": {
                     "bootDiagnostics": {
                         "enabled": true,
-                        "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('labstorage'))).primaryEndpoints.blob]"
+                        "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('labstorage4324654'))).primaryEndpoints.blob]"
                     }
                 }
             }
