@@ -1,9 +1,24 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-    "parameters": {},
+    "parameters": {
+        "adminUserName": {
+            "type": "string",
+            "metadata": {
+                "description": "Admin username"
+            }
+        },
+        "adminPassword": {
+            "type": "string",
+            "metadata": {
+                "description": "Admin password"
+            }
+        }
+    },
     "functions": [],
-    "variables": {},
+    "variables": {
+
+    },
     "resources": [{
         "name": "[toLower('Node1storage')]",
         "type": "Microsoft.Storage/storageAccounts",
@@ -28,7 +43,7 @@
         "properties": {
             "publicIPAllocationMethod": "Dynamic",
             "dnsSettings": {
-                "domainNameLabel": "[toLower('Node1')]"
+                "domainNameLabel": "[toLower('Node1-jfhryfb')]"
             }
         }
     },
@@ -133,8 +148,8 @@
             },
             "osProfile": {
                 "computerName": "Node1",
-                "adminUsername": "adminUsername",
-                "adminPassword": "adminPassword"
+                "adminUsername": "[parameters('adminUserName')]",
+                "adminPassword": "[parameters('adminPassword')]",
             },
             "storageProfile": {
                 "imageReference": {
@@ -199,7 +214,7 @@
             "properties": {
                 "publicIPAllocationMethod": "Dynamic",
                 "dnsSettings": {
-                    "domainNameLabel": "[toLower('Node2')]"
+                    "domainNameLabel": "[toLower('Node2-jfhryfb')]"
                 }
             }
         },
@@ -304,8 +319,8 @@
                 },
                 "osProfile": {
                     "computerName": "Node2",
-                    "adminUsername": "adminUsername",
-                    "adminPassword": "adminPassword"
+                    "adminUsername": "[parameters('adminUserName')]",
+                    "adminPassword": "[parameters('adminPassword')]",
                 },
                 "storageProfile": {
                     "imageReference": {
@@ -475,8 +490,8 @@
                 },
                 "osProfile": {
                     "computerName": "win11VM",
-                    "adminUsername": "adminUsername",
-                    "adminPassword": "adminPassword"
+                    "adminUsername": "[parameters('adminUserName')]",
+                    "adminPassword": "[parameters('adminPassword')]",
                 },
                 "storageProfile": {
                     "imageReference": {
