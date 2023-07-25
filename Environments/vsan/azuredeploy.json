@@ -147,7 +147,18 @@
                     "name": "Node1OSDisk",
                     "caching": "ReadWrite",
                     "createOption": "FromImage"
-                }
+                },
+                "dataDisks": [
+                    {
+                        "name": "node1data",
+                        "diskSizeGB": 1023,
+                        "lun": 0,
+                        "vhd": {
+                            "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('Node1storage') )).primaryEndpoints.blob, 'vhds/node1data.vhd')]"
+                        },
+                        "createOption": "Empty"
+                    }
+                ]
             },
             "networkProfile": {
                 "networkInterfaces": [
@@ -307,7 +318,18 @@
                         "name": "Node2OSDisk",
                         "caching": "ReadWrite",
                         "createOption": "FromImage"
+                    },
+                    "dataDisks": [
+                    {
+                        "name": "node2data",
+                        "diskSizeGB": 1023,
+                        "lun": 0,
+                        "vhd": {
+                            "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('Node2storage'))).primaryEndpoints.blob, 'vhds/node2data.vhd')]"
+                        },
+                        "createOption": "Empty"
                     }
+                ]
                 },
                 "networkProfile": {
                     "networkInterfaces": [
@@ -325,12 +347,12 @@
             }
         },
         {
-            "name": "[toLower('windows11VMstorage')]",
+            "name": "[toLower('win11VMstorage')]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2021-04-01",
             "location": "[resourceGroup().location]",
             "tags": {
-                "displayName": "windows11VM Storage Account"
+                "displayName": "win11VM Storage Account"
             },
             "sku": {
                 "name": "Standard_LRS"
@@ -338,7 +360,7 @@
             "kind": "Storage"
         },
         {
-            "name": "windows11VM-PublicIP",
+            "name": "win11VM-PublicIP",
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2020-11-01",
             "location": "[resourceGroup().location]",
@@ -348,12 +370,12 @@
             "properties": {
                 "publicIPAllocationMethod": "Dynamic",
                 "dnsSettings": {
-                    "domainNameLabel": "[toLower('windows11VM')]"
+                    "domainNameLabel": "[toLower('win11VM')]"
                 }
             }
         },
         {
-            "name": "windows11VM-nsg",
+            "name": "win11VM-nsg",
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-11-01",
             "location": "[resourceGroup().location]",
@@ -377,15 +399,15 @@
             }
         },
         {
-            "name": "windows11VM-VirtualNetwork",
+            "name": "win11VM-VirtualNetwork",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2020-11-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', 'windows11VM-nsg')]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', 'win11VM-nsg')]"
             ],
             "tags": {
-                "displayName": "windows11VM-VirtualNetwork"
+                "displayName": "win11VM-VirtualNetwork"
             },
             "properties": {
                 "addressSpace": {
@@ -395,11 +417,11 @@
                 },
                 "subnets": [
                     {
-                        "name": "windows11VM-VirtualNetwork-Subnet",
+                        "name": "win11VM-VirtualNetwork-Subnet",
                         "properties": {
                             "addressPrefix": "10.0.0.0/24",
                             "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'windows11VM-nsg')]"
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'win11VM-nsg')]"
                             }
                         }
                     }
@@ -407,16 +429,16 @@
             }
         },
         {
-            "name": "windows11VM-NetworkInterface",
+            "name": "win11VM-NetworkInterface",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-11-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', 'windows11VM-PublicIP')]",
-                "[resourceId('Microsoft.Network/virtualNetworks', 'windows11VM-VirtualNetwork')]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', 'win11VM-PublicIP')]",
+                "[resourceId('Microsoft.Network/virtualNetworks', 'win11VM-VirtualNetwork')]"
             ],
             "tags": {
-                "displayName": "windows11VM Network Interface"
+                "displayName": "win11VM Network Interface"
             },
             "properties": {
                 "ipConfigurations": [
@@ -425,10 +447,10 @@
                         "properties": {
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'windows11VM-PublicIP')]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'win11VM-PublicIP')]"
                             },
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'windows11VM-VirtualNetwork', 'windows11VM-VirtualNetwork-Subnet')]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'win11VM-VirtualNetwork', 'win11VM-VirtualNetwork-Subnet')]"
                             }
                         }
                     }
@@ -436,23 +458,23 @@
             }
         },
         {
-            "name": "windows11VM",
+            "name": "win11VM",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2021-03-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', toLower('windows11VMstorage'))]",
-                "[resourceId('Microsoft.Network/networkInterfaces', 'windows11VM-NetworkInterface')]"
+                "[resourceId('Microsoft.Storage/storageAccounts', toLower('win11VMstorage'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', 'win11VM-NetworkInterface')]"
             ],
             "tags": {
-                "displayName": "windows11VM"
+                "displayName": "win11VM"
             },
             "properties": {
                 "hardwareProfile": {
                     "vmSize": "Standard_A2_v2"
                 },
                 "osProfile": {
-                    "computerName": "windows11VM",
+                    "computerName": "win11VM",
                     "adminUsername": "adminUsername",
                     "adminPassword": "adminPassword"
                 },
@@ -464,7 +486,7 @@
                         "version": "latest"
                     },
                     "osDisk": {
-                        "name": "windows11VMOSDisk",
+                        "name": "win11VMOSDisk",
                         "caching": "ReadWrite",
                         "createOption": "FromImage"
                     }
@@ -472,14 +494,14 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'windows11VM-NetworkInterface')]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'win11VM-NetworkInterface')]"
                         }
                     ]
                 },
                 "diagnosticsProfile": {
                     "bootDiagnostics": {
                         "enabled": true,
-                        "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('windows11VMstorage'))).primaryEndpoints.blob]"
+                        "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('win11VMstorage'))).primaryEndpoints.blob]"
                     }
                 }
             }
