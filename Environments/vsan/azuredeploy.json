@@ -33,6 +33,21 @@
         "kind": "Storage"
     },
     {
+        "type": "Microsoft.Compute/disks",
+        "apiVersion": "2021-04-01",
+        "name": "Node1datadisk",
+        "location": "[resourceGroup().location]",
+        "sku": {
+            "name": "Standard_LRS"
+        },
+        "properties": {
+            "creationData": {
+                "createOption": "Empty"
+            },
+            "diskSizeGB": 1023
+        }
+    },
+    {
         "name": "Node1-PublicIP",
         "type": "Microsoft.Network/publicIPAddresses",
         "apiVersion": "2020-11-01",
@@ -137,7 +152,8 @@
         "location": "[resourceGroup().location]",
         "dependsOn": [
             "[resourceId('Microsoft.Storage/storageAccounts', toLower('Node1storage'))]",
-            "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-NetworkInterface')]"
+            "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-NetworkInterface')]",
+            "[resourceId('Microsoft.Compute/disks/', parameters('node1datadisk'))]"
         ],
         "tags": {
             "displayName": "Node1"
@@ -168,8 +184,8 @@
                         "name": "node1data",
                         "diskSizeGB": 1023,
                         "lun": 0,
-                        "vhd": {
-                            "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('Node1storage') )).primaryEndpoints.blob, 'vhds/node1data.vhd')]"
+                        "managedDisk": {
+                            "id": "[resourceId('Microsoft.Compute/disks/', 'node1datadisk' )]"
                         },
                         "createOption": "Empty"
                     }
@@ -202,6 +218,21 @@
                 "name": "Standard_LRS"
             },
             "kind": "Storage"
+        },
+        {
+            "type": "Microsoft.Compute/disks",
+            "apiVersion": "2021-04-01",
+            "name": "Node2datadisk",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "properties": {
+                "creationData": {
+                    "createOption": "Empty"
+                },
+                "diskSizeGB": 1023
+            }
         },
         {
             "name": "Node2-PublicIP",
@@ -308,7 +339,8 @@
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', toLower('Node2storage'))]",
-                "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-NetworkInterface')]"
+                "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-NetworkInterface')]",
+                "[resourceId('Microsoft.Compute/disks/', parameters('node1datadisk'))]"
             ],
             "tags": {
                 "displayName": "Node2"
@@ -339,8 +371,8 @@
                         "name": "node2data",
                         "diskSizeGB": 1023,
                         "lun": 0,
-                        "vhd": {
-                            "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('Node2storage'))).primaryEndpoints.blob, 'vhds/node2data.vhd')]"
+                        "managedDisk": {
+                            "id": "[resourceId('Microsoft.Compute/disks/', 'node2datadisk' )]"
                         },
                         "createOption": "Empty"
                     }
