@@ -73,7 +73,7 @@
         "properties": {
             "publicIPAllocationMethod": "Dynamic",
             "dnsSettings": {
-                "domainNameLabel": "[toLower('Node1-jfhryfb')]"
+                "domainNameLabel": "[concat( toLower('Node1-'), substring( uniqueString( utcNow() ),0,5  )   )]"
             }
         }
     },
@@ -314,7 +314,7 @@
             "properties": {
                 "publicIPAllocationMethod": "Dynamic",
                 "dnsSettings": {
-                    "domainNameLabel": "[toLower('Node2-jfhryfb')]"
+                    "domainNameLabel": "[concat( toLower('Node2-'), substring( uniqueString( utcNow() ),0,5  )   )]"
                 }
             }
         },
@@ -488,7 +488,7 @@
             "properties": {
                 "publicIPAllocationMethod": "Dynamic",
                 "dnsSettings": {
-                    "domainNameLabel": "[toLower('win11VM')]"
+                    "domainNameLabel": "[concat( toLower('w11vm-'), substring( uniqueString( utcNow() ),0,5  )   )]"
                 }
             }
         },
