@@ -13,11 +13,20 @@
             "metadata": {
                 "description": "Admin password"
             }
+        },
+        "createdDate": {
+            "type": "string",
+            "defaultValue": "[utcnow()]",
+            "metadata": {
+                "description": "Current date"
+            }
         }
     },
     "functions": [],
     "variables": {
 
+    
+        "random": "[substring(parameters('createdDate'),0,5)]"
     },
     "resources": [{
         "name": "[toLower('labstorage4324654')]",
@@ -73,7 +82,7 @@
         "properties": {
             "publicIPAllocationMethod": "Dynamic",
             "dnsSettings": {
-                "domainNameLabel": "[concat( toLower('Node1-'), substring( uniqueString( utcNow() ),0,5  )   )]"
+                "domainNameLabel": "[concat( toLower('Node1-'), variables('random'))]"
             }
         }
     },
@@ -314,7 +323,7 @@
             "properties": {
                 "publicIPAllocationMethod": "Dynamic",
                 "dnsSettings": {
-                    "domainNameLabel": "[concat( toLower('Node2-'), substring( uniqueString( utcNow() ),0,5  )   )]"
+                    "domainNameLabel": "[concat( toLower('Node2-'), variables('random'))]"
                 }
             }
         },
@@ -488,7 +497,7 @@
             "properties": {
                 "publicIPAllocationMethod": "Dynamic",
                 "dnsSettings": {
-                    "domainNameLabel": "[concat( toLower('w11vm-'), substring( uniqueString( utcNow() ),0,5  )   )]"
+                    "domainNameLabel": "[concat( toLower('w11vm-'), variables('random'))]"
                 }
             }
         },
