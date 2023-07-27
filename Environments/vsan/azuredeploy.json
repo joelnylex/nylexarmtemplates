@@ -212,8 +212,7 @@
             "[resourceId('Microsoft.Storage/storageAccounts', toLower('labstorage4324654'))]",
             "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-management-nic')]",
             "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-sync-nic')]",
-            "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-iscsi-nic')]",
-            "[resourceId('Microsoft.Compute/disks/', 'node1datadisk')]"
+            "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-iscsi-nic')]"
         ],
         "tags": {
             "displayName": "Node1"
@@ -225,7 +224,7 @@
             "osProfile": {
                 "computerName": "Node1",
                 "adminUsername": "[parameters('adminUserName')]",
-                "adminPassword": "[parameters('adminPassword')]",
+                "adminPassword": "[parameters('adminPassword')]"
             },
             "storageProfile": {
                 "imageReference": {
@@ -264,6 +263,7 @@
                         "id": "[resourceId('Microsoft.Network/networkInterfaces', 'Node1-sync-nic')]",
                         "properties": {
                             "primary": false
+                            
                         }
                     },
                     {
@@ -393,8 +393,7 @@
                 "[resourceId('Microsoft.Storage/storageAccounts', toLower('labstorage4324654'))]",
                 "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-management-nic')]",
                 "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-sync-nic')]",
-                "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-iscsi-nic')]",
-                "[resourceId('Microsoft.Compute/disks/', 'node2datadisk')]"
+                "[resourceId('Microsoft.Network/networkInterfaces', 'Node2-iscsi-nic')]"
             ],
             "tags": {
                 "displayName": "Node2"
