@@ -279,12 +279,12 @@
                     "enabled": true,
                     "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('labstorage4324654'))).primaryEndpoints.blob]"
                 }
-            },
+            }/*,
             "priority": "Spot",
             "evictionPolicy": "Deallocate",
             "billingProfile": {
                 "maxPrice": -1
-            }
+            }*/
         }
     },
         
@@ -458,12 +458,12 @@
                         "enabled": true,
                         "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('labstorage4324654'))).primaryEndpoints.blob]"
                     }
-                },
+                }/*,
                 "priority": "Spot",
                 "evictionPolicy": "Deallocate",
                 "billingProfile": {
                     "maxPrice": -1
-                }
+                }*/
             }
         }
         
