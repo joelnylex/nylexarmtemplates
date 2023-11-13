@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "4.0.0.0",
     "metadata": {
-      "description": "Deploy DCLab",
+      "description": "Deploy DFSLab",
       "author": "Joel Stephens"
     },
     "parameters": {
@@ -15,7 +15,7 @@
         "minLength": 1,
         "defaultValue": "nylexadmin",
         "metadata": {
-          "description": "Name of the AD and SharePoint administrator. 'admin' and 'administrator' are not allowed."
+          "description": "Name of the AD and administrator. 'admin' and 'administrator' are not allowed."
         }
       },
       "adminPassword": {
@@ -23,6 +23,27 @@
         "minLength": 8,
         "metadata": {
           "description": "Input must meet password complexity requirements as documented in https://learn.microsoft.com/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-"
+        }
+      },
+      "domainName": {
+        "type": "string",
+        "minLength": 6,
+        "metadata": {
+          "description": "Enter the FQDN of the Active Directory domain that will be created. Ex: ad.mydomain.com."
+        }
+      },
+      "_artifactsLocation": {
+        "type": "string",
+        "defaultValue": "[deployment().properties.templateLink.uri]",
+        "metadata": {
+          "description": "The location of resources, such as templates and DSC modules, that the template depends on"
+        }
+      },
+      "_artifactsLocationSasToken": {
+        "type": "secureString",
+        "defaultValue": "",
+        "metadata": {
+          "description": "Auto-generated token to access _artifactsLocation. Leave it blank unless you need to provide your own value."
         }
       }
     },
@@ -159,7 +180,8 @@
             {
               "name": "ipconfig1",
               "properties": {
-                "privateIPAllocationMethod": "Dynamic",
+                "privateIPAllocationMethod": "Static",
+                "privateIPAddress": "[variables('dcPrivateIPAddress')]",
                 "subnet": {
                   "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').vNetPrivateName, variables('networkSettings').subnetName)]"
                 },
@@ -217,6 +239,44 @@
           }
         }
       },
+
+
+      {
+       "type": "Microsoft.Compute/virtualMachines/extensions",
+        "apiVersion": "2022-08-01",
+        "name": "[format('{0}/{1}', variables('vmsSettings').vmDCName, 'CreateADForest')]",
+        "location": "[variables('location')]",
+        "properties": {
+          "publisher": "Microsoft.Powershell",
+          "type": "DSC",
+          "typeHandlerVersion": "2.19",
+          "autoUpgradeMinorVersion": true,
+          "settings": {
+            "ModulesUrl": "[uri(parameters('_artifactsLocation'), format('DSC/CreateADPDC.zip{0}', parameters('_artifactsLocationSasToken')))]",
+            "ConfigurationFunction": "CreateADPDC.ps1\\CreateADDS",
+            "Properties": {
+              "DomainName": "[parameters('domainName')]",
+              "AdminCreds": {
+                "UserName": "[parameters('adminUsername')]",
+                "Password": "PrivateSettingsRef:AdminPassword"
+              }
+            }
+          },
+          "protectedSettings": {
+            "Items": {
+              "AdminPassword": "[parameters('adminPassword')]"
+            }
+        }
+        },
+        "dependsOn": [
+          "[resourceId('Microsoft.Compute/virtualMachines', variables('vmsSettings').vmDCName)]"
+        ]
+      },
+
+
+
+
+
       {
         "name": "[variables('vmsResourcesNames').vmServer2PublicIPName]",
         "type": "Microsoft.Network/publicIPAddresses",
