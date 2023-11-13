@@ -181,7 +181,7 @@
               "name": "ipconfig1",
               "properties": {
                 "privateIPAllocationMethod": "Static",
-                "privateIPAddress": "[variables('dcPrivateIPAddress')]",
+                "privateIPAddress": "[variables('networkSettings').dcPrivateIPAddress]",
                 "subnet": {
                   "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').vNetPrivateName, variables('networkSettings').subnetName)]"
                 },
