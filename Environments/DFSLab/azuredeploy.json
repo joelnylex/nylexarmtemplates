@@ -32,14 +32,14 @@
           "description": "Enter the FQDN of the Active Directory domain that will be created. Ex: ad.mydomain.com."
         }
       },
-      "_artifactsLocation": {
+      "artifactsLocation": {
         "type": "string",
         "defaultValue": "[deployment().properties.templateLink.uri]",
         "metadata": {
           "description": "The location of resources, such as templates and DSC modules, that the template depends on"
         }
       },
-      "_artifactsLocationSasToken": {
+      "artifactsLocationSasToken": {
         "type": "secureString",
         "defaultValue": "",
         "metadata": {
