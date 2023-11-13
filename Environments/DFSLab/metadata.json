@@ -1,6 +1,6 @@
 {
   "itemDisplayName": "Nylex DFS Lab",
   "githubUsername": "joelnylex",
-  "description": "Two server VMs for use in an AD training lab.",
-  "summary": "Two server VMs for use in an AD training lab."
+  "description": "Two server VMs for use in a DFS training lab.",
+  "summary": "Two server VMs for use in a DFS training lab."
 }
