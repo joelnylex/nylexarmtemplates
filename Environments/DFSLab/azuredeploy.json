@@ -57,7 +57,8 @@
       "networkSettings": {
         "vNetPrivatePrefix": "10.1.0.0/16",
         "subnetPrefix": "10.1.1.0/24",
-        "dcPrivateIPAddress": "10.1.1.4",
+        "dcPrivateIPAddress": "10.1.1.5",
+        "server2PrivateIPAddress": "10.1.1.6",
         "vNetPrivateName": "[concat(variables('resourceGroupNameFormatted'), '-vnet')]",
         "subnetName": "Subnet",
         "nsgSubnetDCName": "NSG-Subnet-DC",
@@ -307,7 +308,8 @@
             {
               "name": "ipconfig1",
               "properties": {
-                "privateIPAllocationMethod": "Dynamic",
+                "privateIPAllocationMethod": "Static",
+                "privateIPAddress": "[variables('networkSettings').server2PrivateIPAddress]",
                 "subnet": {
                   "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').vNetPrivateName, variables('networkSettings').subnetName)]"
                 },
