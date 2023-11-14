@@ -31,16 +31,11 @@
         "metadata": {
           "description": "Enter the FQDN of the Active Directory domain that will be created. Ex: ad.mydomain.com."
         }
-      },
-      "_artifactsLocation": {
-        "type": "string",
-        "defaultValue": "https://github.com/joelnylex/nylexarmtemplates/raw/main/Environments/DFSLab/",
-        "metadata": {
-          "description": "The location of resources, such as templates and DSC modules, that the template depends on"
-        }
       }
+
     },
     "variables": {
+      "artifactsLocation": "https://github.com/joelnylex/nylexarmtemplates/raw/main/Environments/DFSLab/",
       "RDPTrafficAllowed": "Yes",
       "location": "[resourceGroup().location]",
       "vmsTimeZone": "Pacific Standard Time",
@@ -246,7 +241,7 @@
           "typeHandlerVersion": "2.19",
           "autoUpgradeMinorVersion": true,
           "settings": {
-            "ModulesUrl": "[uri(parameters('_artifactsLocation'), format('DSC/CreateADPDC.zip{0}'))]",
+            "ModulesUrl": "[uri(variables('artifactsLocation'), format('DSC/CreateADPDC.zip{0}'))]",
             "ConfigurationFunction": "CreateADPDC.ps1\\CreateADDS",
             "Properties": {
               "DomainName": "[parameters('domainName')]",
