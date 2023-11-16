@@ -36,6 +36,7 @@
     },
     "variables": {
       "artifactsLocation": "https://github.com/joelnylex/nylexarmtemplates/raw/main/Environments/DFSLab/",
+      "dsczipLocation": "https://github.com/joelnylex/nylexarmtemplates/raw/main/Environments/DFSLab/DSC/CreateADDS.zip",
       "RDPTrafficAllowed": "Yes",
       "location": "[resourceGroup().location]",
       "vmsTimeZone": "Pacific Standard Time",
@@ -241,7 +242,8 @@
           "typeHandlerVersion": "2.19",
           "autoUpgradeMinorVersion": true,
           "settings": {
-            "ModulesUrl": "[uri(variables('artifactsLocation'), format('DSC/CreateADDS.zip'))]",
+            //"ModulesUrl": "[uri(variables('artifactsLocation'), format('DSC/CreateADDS.zip'))]",
+            "modulesUrl": "[variables('dsczipLocation')]",
             "ConfigurationFunction": "CreateADDS.ps1\\CreateADDS",
             "Properties": {
               "DomainName": "[parameters('domainName')]",
