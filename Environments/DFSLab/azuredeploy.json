@@ -233,7 +233,7 @@
       {
        "type": "Microsoft.Compute/virtualMachines/extensions",
         "apiVersion": "2022-08-01",
-        "name": "[format('{0}/{1}/{2}', 'DSC', variables('vmsSettings').vmDCName, 'CreateADForest')]",
+        "name": "[format('{0}/{1}', variables('vmsSettings').vmDCName, 'CreateADDS')]",
         "location": "[variables('location')]",
         "properties": {
           "publisher": "Microsoft.Powershell",
