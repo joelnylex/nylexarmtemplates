@@ -241,7 +241,7 @@
           "typeHandlerVersion": "2.19",
           "autoUpgradeMinorVersion": true,
           "settings": {
-            "ModulesUrl": "[uri(variables('artifactsLocation'), format('DSC/CreateADPDC.zip{0}'))]",
+            "ModulesUrl": "[uri(variables('artifactsLocation'), format('DSC/CreateADPDC.zip'))]",
             "ConfigurationFunction": "CreateADPDC.ps1\\CreateADDS",
             "Properties": {
               "DomainName": "[parameters('domainName')]",
